@@ -2,6 +2,7 @@ package com.carina.backend.controllers;
 
 import com.carina.backend.repositories.CarparkAvailabilityRepository;
 import com.carina.backend.services.CarparkAvailability;
+import com.carina.backend.templates.CarparkAvailabilityTemplate;
 import com.carina.backend.validations.BsonIDValidator;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,8 @@ import java.util.List;
 public class CarparkAvailabilityController {
     @Autowired
     private CarparkAvailabilityRepository repository;
+    @Autowired
+    private CarparkAvailabilityTemplate template;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public List<CarparkAvailability> getAllCarParks() {
@@ -25,6 +28,11 @@ public class CarparkAvailabilityController {
     public CarparkAvailability getCarParkById(@PathVariable("id") String idStr) {
         BsonIDValidator validator = new BsonIDValidator(idStr);
         return repository.findBy_id(validator.getObjectId());
+    }
+
+    @RequestMapping(value = "/area/{area}", method = RequestMethod.GET)
+    public List<CarparkAvailability> getCarParkByArea(@PathVariable("area") String area) {
+        return template.findByArea(area);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
