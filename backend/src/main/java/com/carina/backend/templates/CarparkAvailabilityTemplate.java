@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+// http://appsdeveloperblog.com/spring-boot-and-mongotemplate-tutorial-with-mongodb/
 @Repository
 public class CarparkAvailabilityTemplate {
 
