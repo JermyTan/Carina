@@ -1,4 +1,4 @@
-package com.carina.backend.services;
+package com.carina.backend.responses;
 
 public class Version {
 

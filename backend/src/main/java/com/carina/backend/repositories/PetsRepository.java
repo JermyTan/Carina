@@ -1,5 +1,6 @@
-package com.carina.backend.services;
+package com.carina.backend.repositories;
 
+import com.carina.backend.services.Pets;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 

@@ -1,8 +1,8 @@
-package com.carina.backend.controllers.response;
+package com.carina.backend.controllers;
 
 
 import com.carina.backend.services.Pets;
-import com.carina.backend.services.PetsRepository;
+import com.carina.backend.repositories.PetsRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;

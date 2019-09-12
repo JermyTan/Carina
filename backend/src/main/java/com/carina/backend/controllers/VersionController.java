@@ -1,11 +1,11 @@
-package com.carina.backend.controllers.response;
+package com.carina.backend.controllers;
 
-import com.carina.backend.services.Version;
+import com.carina.backend.responses.Version;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class VersionResponse {
+public class VersionController {
 
     @GetMapping("/version")
     Version getVersion() {
