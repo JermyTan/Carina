@@ -39,6 +39,7 @@ db.carparkAvailability.find({});
 - Direct browser to http://localhost:8080/carpark-availability
 - Json data of the parking lots from database should appear
 
-#### Resources
+### Resources
 
 - https://www.codementor.io/gtommee97/rest-api-java-spring-boot-and-mongodb-j7nluip8d
+- https://www.baeldung.com/jsonassert
