@@ -2,7 +2,9 @@ plugins {
 	id 'org.springframework.boot' version '2.1.8.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.8.RELEASE'
 	id 'java'
+	id 'checkstyle'
 }
+
 
 group = 'com.carina'
 version = '0.0.1-SNAPSHOT'
@@ -11,6 +13,10 @@ sourceCompatibility = '11'
 repositories {
 	mavenCentral()
 	jcenter()
+}
+
+checkstyle {
+	toolVersion = "8.22"
 }
 
 dependencies {
@@ -22,6 +28,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testCompile 'org.junit.jupiter:junit-jupiter:5.4.0'
 	testCompile 'org.skyscreamer:jsonassert:1.5.0'
+	checkstyle "io.spring.javaformat:spring-javaformat-checkstyle:0.0.15"
 }
 
 test {
