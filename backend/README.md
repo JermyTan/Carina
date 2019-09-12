@@ -1,9 +1,43 @@
 ### Carina's BackEnd
 
-- Backend is built with Spring Boot (OpenJDK v11.0.4 and Junit 4).
-- Database is MongoDB (v3.6.3).
-- Live Data is pulled from LTA DataMall with AWS Lambda
-- Website hosted on AWS
+- Build backend with Spring Boot (OpenJDK v11.0.4 and Junit 4)
+- Build Spring Boot with Gradle (v5.2.1)
+- Store data in MongoDB (v3.6.3)
+- Pull live data from LTA DataMall with AWS Lambda
+- Host on AWS
+- Test and build on Ubuntu 18
+
+### Manual Setup of MongoDB
+
+- Enter MongoDB
+```$xslt
+mongo
+```
+- Create and use database
+```$xslt
+use carina;
+```
+- Create table
+```$xslt
+db.createCollection("carparkAvailability");
+```
+- Add data to table
+```$xslt
+db.carparkAvailability.insertMany([ {"CarParkID":"2","Area":"Marina","Development":"Marina Square","Location":"1.29115 103.85728","AvailableLots":1838,"LotType":"C","Agency":"LTA"},{"CarParkID":"3","Area":"Marina","Development":"Raffles City","Location":"1.29382 103.85319","AvailableLots":922,"LotType":"C","Agency":"LTA"},{"CarParkID":"4","Area":"Marina","Development":"The Esplanade","Location":"1.29011 103.85561","AvailableLots":795,"LotType":"C","Agency":"LTA"},{"CarParkID":"5","Area":"Marina","Development":"Millenia Singapore","Location":"1.29251 103.86009","AvailableLots":1217,"LotType":"C","Agency":"LTA"} ])
+```
+- Check data in table
+```$xslt
+db.carparkAvailability.find({});
+```
+
+### Run the backend
+- Install Java 11 and Gradle 5+
+- Execute the command
+```$xslt
+./gradlew bootRun
+```
+- Direct browser to http://localhost:8080/carpark-availability
+- Json data of the parking lots from database should appear
 
 #### Resources
 
