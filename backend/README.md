@@ -43,3 +43,4 @@ db.carparkAvailability.find({});
 
 - https://www.codementor.io/gtommee97/rest-api-java-spring-boot-and-mongodb-j7nluip8d
 - https://www.baeldung.com/jsonassert
+- https://stackoverflow.com/questions/13312358/mongo-couldnt-connect-to-server-127-0-0-127017
