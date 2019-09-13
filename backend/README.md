@@ -59,3 +59,4 @@ db.carparkAvailability.find({});
 - https://stackoverflow.com/questions/13312358/mongo-couldnt-connect-to-server-127-0-0-127017
 - https://www.tutorialspoint.com/spring_boot/spring_boot_enabling_swagger2.htm
 - https://www.baeldung.com/spring-boot-embedded-mongodb
+- https://stackoverflow.com/questions/40580088/switch-between-mongo-production-and-test-database-java-spring-boot
