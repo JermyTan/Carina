@@ -60,3 +60,5 @@ db.carparkAvailability.find({});
 - https://www.tutorialspoint.com/spring_boot/spring_boot_enabling_swagger2.htm
 - https://www.baeldung.com/spring-boot-embedded-mongodb
 - https://stackoverflow.com/questions/40580088/switch-between-mongo-production-and-test-database-java-spring-boot
+- https://www.nexsoftsys.com/articles/how-to-deploy-spring-boot-application-in-aws-ec2-server-quickly.html
+- https://geekyneha.wordpress.com/2018/11/17/how-to-deploy-spring-boot-application-on-aws-ec2/
