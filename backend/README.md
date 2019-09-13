@@ -39,8 +39,22 @@ db.carparkAvailability.find({});
 - Direct browser to http://localhost:8080/carpark-availability
 - Json data of the parking lots from database should appear
 
+### Swagger API
+- Point browser to http://localhost:8080/swagger-ui.html to view endpoints
+
+### Unit and Integeration Test
+- Run integration and unit test
+```$xslt
+./gradlew test
+```
+- Check the code style
+```$xslt
+./gradlew check
+```
+
 ### Resources
 
 - https://www.codementor.io/gtommee97/rest-api-java-spring-boot-and-mongodb-j7nluip8d
 - https://www.baeldung.com/jsonassert
 - https://stackoverflow.com/questions/13312358/mongo-couldnt-connect-to-server-127-0-0-127017
+- https://www.tutorialspoint.com/spring_boot/spring_boot_enabling_swagger2.htm
