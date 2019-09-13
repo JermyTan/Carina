@@ -1,6 +1,6 @@
 package com.carina.backend.templates;
 
-import com.carina.backend.services.CarparkAvailability;
+import com.carina.backend.model.CarparkAvailability;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -27,6 +27,10 @@ public class CarparkAvailabilityTemplate {
         Query query = new Query();
         query.addCriteria(Criteria.where("Area").is(area));
         return mongoTemplate.find(query, CarparkAvailability.class);
+    }
+
+    public void save(CarparkAvailability carparkAvailability) {
+        mongoTemplate.save(carparkAvailability);
     }
 
 }

@@ -1,8 +1,10 @@
-package com.carina.backend.services;
+package com.carina.backend.model;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document(collection = "carparkAvailability")
 public class CarparkAvailability {
     @Id
     private ObjectId _id;

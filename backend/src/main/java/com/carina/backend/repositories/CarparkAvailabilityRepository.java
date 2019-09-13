@@ -1,6 +1,6 @@
 package com.carina.backend.repositories;
 
-import com.carina.backend.services.CarparkAvailability;
+import com.carina.backend.model.CarparkAvailability;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 

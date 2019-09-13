@@ -1,7 +1,7 @@
 package com.carina.backend.controllers;
 
 import com.carina.backend.repositories.CarparkAvailabilityRepository;
-import com.carina.backend.services.CarparkAvailability;
+import com.carina.backend.model.CarparkAvailability;
 import com.carina.backend.templates.CarparkAvailabilityTemplate;
 import com.carina.backend.validations.BsonIDValidator;
 import org.bson.types.ObjectId;
