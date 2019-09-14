@@ -1,11 +1,17 @@
 import React from "react";
-import CarparkMap from "../components/CarparkMap";
 // @ts-ignore
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 // @ts-ignore
 import { geocodeByPlaceId, getLatLng } from "react-google-places-autocomplete";
+// @ts-ignore
+import Geocode from "react-geocode";
+
+import CarparkMap from "../components/CarparkMap";
+import LocationSvg from "../components/svgrs/LocationSvg";
 
 import "styles/Main.scss";
+
+Geocode.setApiKey(process.env.REACT_APP_GOOGLE_MAP_API_KEY);
 
 interface IMainPageState {
   location: {
@@ -35,6 +41,7 @@ class MainPage extends React.Component<any, IMainPageState> {
     this.handleRadiusChange = this.handleRadiusChange.bind(this);
     this.handleBlur = this.handleBlur.bind(this);
     this.handleSelectLocation = this.handleSelectLocation.bind(this);
+    this.requestLocation = this.requestLocation.bind(this);
   }
 
   handleRadiusChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -56,24 +63,74 @@ class MainPage extends React.Component<any, IMainPageState> {
       });
   }
 
-  // TODO: Add state to keep track of location entered
+  requestLocation() {
+    if (navigator.geolocation) {
+      const updatePosition = (position: Position) => {
+        const { latitude, longitude } = position.coords;
+        Geocode.fromLatLng(latitude, longitude).then((response: any) => {
+          const address = response.results[0].formatted_address;
+          this.setState({
+            location: {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            },
+            address,
+          });
+        });
+      };
+
+      const showError = (error: any) => {
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            alert(
+              "To get current location, please allow location access for this application."
+            );
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert("Location information is unavailable.");
+            break;
+          case error.TIMEOUT:
+            alert("The request to get current location timed out.");
+            break;
+          case error.UNKNOWN_ERROR:
+            alert("An unknown error occurred.");
+            break;
+        }
+      };
+
+      navigator.geolocation.getCurrentPosition(updatePosition, showError);
+    } else {
+      alert("Geolocation is not supported for this Browser/OS.");
+    }
+  }
+
   render() {
     const radiusInt =
       this.state.radius === "" ? 0 : parseInt(this.state.radius);
 
     return (
       <div className="row">
-        <div className="col-6">
+        <div className="col-lg-6">
           <form>
             <div className="form-group">
-              <GooglePlacesAutocomplete
-                inputClassName="form-control"
-                autocompletionRequest={{
-                  componentRestrictions: { country: "sg" },
-                }}
-                initialValue={this.state.address}
-                onSelect={this.handleSelectLocation}
-              />
+              <div className="input-group mb-2">
+                <GooglePlacesAutocomplete
+                  inputClassName="form-control"
+                  autocompletionRequest={{
+                    componentRestrictions: { country: "sg" },
+                  }}
+                  initialValue={this.state.address}
+                  onSelect={this.handleSelectLocation}
+                />
+                <div className="input-group-append">
+                  <div
+                    className="input-group-text"
+                    onClick={this.requestLocation}
+                  >
+                    <LocationSvg />
+                  </div>
+                </div>
+              </div>
               <label htmlFor="radiusInput">Search radius</label>
               <div className="input-group mb-2">
                 <input
@@ -89,10 +146,9 @@ class MainPage extends React.Component<any, IMainPageState> {
                 </div>
               </div>
             </div>
-            <input type="submit" value="Submit" />
           </form>
         </div>
-        <div className="map-wrapper col-6">
+        <div className="map-wrapper col-lg-6">
           <CarparkMap location={this.state.location} radius={radiusInt} />
         </div>
       </div>
