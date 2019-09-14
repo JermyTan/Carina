@@ -1151,6 +1151,19 @@
   resolved "https://registry.yarnpkg.com/@types/eslint-visitor-keys/-/eslint-visitor-keys-1.0.0.tgz#1ee30d79544ca84d68d4b3cdb0af4f205663dd2d"
   integrity sha512-OCutwjDZ4aFS6PB1UZ988C4YgwlBHJd6wCeQqaLdmadZ/7e+w79+hbMUFC1QXDNCmdyoRfAFdm0RypzwR+Qpag==
 
+"@types/google-maps-react@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@types/google-maps-react/-/google-maps-react-2.0.1.tgz#e4c8a181dd35abedc08fb35cd522e8595d49cc0f"
+  integrity sha512-NGr76/ogkd9emXGIRvIMSRyyNgH/oad/zZmfaw7lOWBg8V9kk0FlUOCrvvPQw7PwF0u/B/Qxd3Bxcs5l/VXvHw==
+  dependencies:
+    "@types/googlemaps" "*"
+    "@types/react" "*"
+
+"@types/googlemaps@*":
+  version "3.37.6"
+  resolved "https://registry.yarnpkg.com/@types/googlemaps/-/googlemaps-3.37.6.tgz#4646e4bd8dcc1beaf522b6e1c2a4228d22e9482f"
+  integrity sha512-ANA1t8sjnLvsxFWVxsbzqj1TTYCwp4j+oOXOiezqCenH2jPwYYhpBSqUzG4A3tpuFW1bL/xhAxhN8DRwDFg2Mw==
+
 "@types/istanbul-lib-coverage@*", "@types/istanbul-lib-coverage@^2.0.0":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@types/istanbul-lib-coverage/-/istanbul-lib-coverage-2.0.1.tgz#42995b446db9a48a11a07ec083499a860e9138ff"
@@ -4292,6 +4305,10 @@ globby@^6.1.0:
     object-assign "^4.0.1"
     pify "^2.0.0"
     pinkie-promise "^2.0.0"
+
+"google-maps-react@https://github.com/fullstackreact/google-maps-react.git#master":
+  version "2.0.3"
+  resolved "https://github.com/fullstackreact/google-maps-react.git#c70a04f668b644a126071c73b392b6094a430a2a"
 
 graceful-fs@^4.1.11, graceful-fs@^4.1.15, graceful-fs@^4.1.2, graceful-fs@^4.1.6:
   version "4.2.1"
@@ -7914,7 +7931,7 @@ react-dev-utils@^9.0.3:
     strip-ansi "5.2.0"
     text-table "0.2.0"
 
-react-dom@16.9.0:
+react-dom@^16.9.0:
   version "16.9.0"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.9.0.tgz#5e65527a5e26f22ae3701131bcccaee9fb0d3962"
   integrity sha512-YFT2rxO9hM70ewk9jq0y6sQk8cL02xm4+IzYBz75CQGlClQQ1Bxq0nhHF6OtSbit+AIahujJgb/CPRibFkMNJQ==
@@ -7995,7 +8012,7 @@ react-scripts@3.1.1:
   optionalDependencies:
     fsevents "2.0.7"
 
-react@16.9.0:
+react@^16.9.0:
   version "16.9.0"
   resolved "https://registry.yarnpkg.com/react/-/react-16.9.0.tgz#40ba2f9af13bc1a38d75dbf2f4359a5185c4f7aa"
   integrity sha512-+7LQnFBwkiw+BobzOF6N//BdoNw0ouwmSJTEm9cglOOmsg/TMiFHZLe2sEoN5M7LgJTj9oHH0gxklfnQe66S1w==
