@@ -16,7 +16,7 @@ interface ICarparkMapProps {
 
 const mapStyles = {
   width: "100%",
-  height: "50%",
+  height: "100vh",
 };
 
 class CarparkMap extends Component<ICarparkMapProps, any> {
@@ -27,6 +27,7 @@ class CarparkMap extends Component<ICarparkMapProps, any> {
         zoom={16}
         style={mapStyles}
         initialCenter={this.props.location}
+        center={this.props.location}
         streetViewControl={false}
         mapTypeControl={false}
         fullscreenControl={false}
