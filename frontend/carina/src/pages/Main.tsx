@@ -7,6 +7,7 @@ import { geocodeByPlaceId, getLatLng } from "react-google-places-autocomplete";
 import Geocode from "react-geocode";
 
 import CarparkMap from "../components/CarparkMap";
+import CarparkInfo from "../components/CarparkInfo";
 import LocationSvg from "../components/svgrs/LocationSvg";
 
 import "styles/Main.scss";
@@ -109,8 +110,9 @@ class MainPage extends React.Component<any, IMainPageState> {
       this.state.radius === "" ? 0 : parseInt(this.state.radius);
 
     return (
-      <div className="row">
-        <div className="col-lg-6">
+      <div className="row no-gutters">
+        <div className="col-lg-7 left-col">
+          {/* Start of form */}
           <form>
             <div className="form-group">
               <div className="input-group mb-2">
@@ -147,8 +149,18 @@ class MainPage extends React.Component<any, IMainPageState> {
               </div>
             </div>
           </form>
+          {/* End of form */}
+
+          <section className="carparks-header">
+            3 carparks within radius
+          </section>
+          <div className="carparks">
+            {new Array(10).fill(0).map(i => (
+              <CarparkInfo location={{ lat: 1.2935861, lng: 103.7844513 }} />
+            ))}
+          </div>
         </div>
-        <div className="map-wrapper col-lg-6">
+        <div className="map-wrapper col-lg-5">
           <CarparkMap location={this.state.location} radius={radiusInt} />
         </div>
       </div>

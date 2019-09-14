@@ -8,3 +8,32 @@
     border-bottom-right-radius: 0;
   }
 }
+
+.map-wrapper {
+  @media screen and (max-width: 992px) {
+    height: 40vh;
+  }
+}
+
+.left-col {
+  height: 100vh;
+  padding: 1em 1.5em !important;
+  display: flex;
+  flex-flow: column nowrap;
+
+  @media screen and (max-width: 992px) {
+    height: 60vh;
+  }
+}
+
+.carparks {
+  flex: auto;
+  overflow-y: scroll;
+  margin-left: -8px;
+  margin-right: -8px;
+}
+
+.carparks-header {
+  font-weight: bold;
+  font-size: 1.5em;
+}

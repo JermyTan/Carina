@@ -16,7 +16,7 @@ interface ICarparkMapProps {
 
 const mapStyles = {
   width: "100%",
-  height: "100vh",
+  height: "100%",
 };
 
 class CarparkMap extends Component<ICarparkMapProps, any> {
