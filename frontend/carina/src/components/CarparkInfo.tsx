@@ -4,6 +4,7 @@ import "styles/CarparkInfo.scss";
 import ExpandMoreSvg from "./svgrs/ExpandMoreSvg";
 import ExpandLessSvg from "./svgrs/ExpandLessSvg";
 import DirectionsSvg from "./svgrs/DirectionsSvg";
+import HistogramChart, { HistogramData } from "./HistogramChart";
 
 interface ICarparkInfoState {
   isExpanded: boolean;
@@ -74,8 +75,8 @@ class CarparkInfo extends React.Component<
             </div>
           </div>
           {this.state.isExpanded && (
-            <div className="card-body">
-              Show histogram of lots remaining here
+            <div className="card-body lot-histogram">
+              <HistogramChart data={HistogramData} />
             </div>
           )}
           <div className="expansion-wrapper" onClick={this.handleExpand}>

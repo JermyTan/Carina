@@ -155,8 +155,11 @@ class MainPage extends React.Component<any, IMainPageState> {
             3 carparks within radius
           </section>
           <div className="carparks">
-            {new Array(10).fill(0).map(i => (
-              <CarparkInfo location={{ lat: 1.2935861, lng: 103.7844513 }} />
+            {new Array(10).fill(0).map((i, k) => (
+              <CarparkInfo
+                key={k}
+                location={{ lat: 1.2935861, lng: 103.7844513 }}
+              />
             ))}
           </div>
         </div>
