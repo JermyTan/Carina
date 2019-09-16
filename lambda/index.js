@@ -2,12 +2,12 @@ const axios = require('axios');
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 
-const url = 'mongodb://ec2-18-216-116-220.us-east-2.compute.amazonaws.com:27017/carina';
-const dbName = 'carina';
+const url = 'mongodb://ec2-18-216-116-220.us-east-2.compute.amazonaws.com:27017/lta';
+const dbName = 'lta';
 
-async function getData() {
+async function getData(apiUrl) {
   try {
-    const response = await axios.get('http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailabilityv2', { "headers": { "AccountKey": "PjPcZIN2SS+LjtXvfFlTIA==", "accept": "application/json" } });
+    const response = await axios.get(apiUrl, { "headers": { "AccountKey": "PjPcZIN2SS+LjtXvfFlTIA==", "accept": "application/json" } });
     return response.data.value;
   } catch (error) {
     console.error(error);
@@ -28,27 +28,43 @@ async function main() {
   const client = await getDB();
   console.log('Connected successfully to server');
   const db = client.db(dbName);
-  const dbTable = await db.collection('carparkAvailability');
+  const dbTable = await db.collection('carparkAvailabilityTuesday');
 
-  // fetch new data
-  const data = await getData();
+  const timestamp = new Date().getTime();
 
-  // delete old data;
-  await dbTable.deleteMany();
+  const url1 = 'http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailabilityv2';
+  const data1 = await getData(url1);
+  data1.forEach((entry) => entry.timestamp = timestamp);
+  await dbTable.insert(data1);
 
-  // update data;
-  await dbTable.insert(data);
-  
-  // print data;
-  const collection = await dbTable.find({}).toArray();
-  console.log(collection);
+  const url2 = 'http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailabilityv2?$skip=500';
+  const data2 = await getData(url2);
+  data2.forEach((entry) => entry.timestamp = timestamp)
+  await dbTable.insert(data2);
 
-  client.close();
+  const url3 = 'http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailabilityv2?$skip=1000';
+  const data3 = await getData(url3);
+  data3.forEach((entry) => entry.timestamp = timestamp);
+  await dbTable.insert(data3);
+
+  const url4 = 'http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailabilityv2?$skip=1500';
+  const data4 = await getData(url4);
+  data4.forEach((entry) => entry.timestamp = timestamp);
+  await dbTable.insert(data4);
+
+  const url5 = 'http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailabilityv2?$skip=2000';
+  const data5 = await getData(url5);
+  data5.forEach((entry) => entry.timestamp = timestamp);
+  await dbTable.insert(data5);
+
+  const url6 = 'http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailabilityv2?$skip=2500';
+  const data6 = await getData(url6);
+  data6.forEach((entry) => entry.timestamp = timestamp);
+  await dbTable.insert(data6);
+
+
+  await client.close();
 }
-
-(async function() {
-  await main();
-})();
 
 exports.handler = async (event) => {
   try {
@@ -60,7 +76,7 @@ exports.handler = async (event) => {
     return response;
   } catch (err) {
     const response = {
-        statusCode: 200,
+        statusCode: 404,
         body: JSON.stringify(err),
     };
     return response;
