@@ -42,6 +42,9 @@ interface IMainPageState {
   address: string;
 
   carparks: Carpark[];
+
+  // TODO: Move this to backend so we don't have to filter in frontend
+  filteredCarparks: Carpark[];
   markers: Location[];
 }
 
@@ -59,6 +62,7 @@ class MainPage extends React.Component<any, IMainPageState> {
       address: "Kent Ridge MRT Station",
 
       carparks: [],
+      filteredCarparks: [],
       markers: [],
     };
 
@@ -87,7 +91,38 @@ class MainPage extends React.Component<any, IMainPageState> {
   }
 
   handleRadiusChange(event: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ radius: event.target.value });
+    const filteredCarparks = this.state.carparks.filter(carpark => {
+      const carparkLatLng = {
+        lat: parseFloat(carpark.location.split(" ")[0]),
+        lng: parseFloat(carpark.location.split(" ")[1]),
+      };
+      return this.withinRadius(
+        this.state.location,
+        carparkLatLng,
+        parseInt(event.target.value) / 1000
+      );
+    });
+
+    this.setState({ radius: event.target.value, filteredCarparks });
+  }
+
+  withinRadius(center: any, point: any, radius: number) {
+    console.log(radius);
+    const R = 6371;
+    const deg2rad = (n: number) => (n * Math.PI) / 180;
+
+    const dLat = deg2rad(point.lat - center.lat);
+    const dLon = deg2rad(point.lng - center.lng);
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(deg2rad(center.lat)) *
+        Math.cos(deg2rad(point.lat)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c;
+    return d <= radius;
   }
 
   handleBlur() {
@@ -101,7 +136,18 @@ class MainPage extends React.Component<any, IMainPageState> {
     geocodeByPlaceId(place_id)
       .then((results: any) => getLatLng(results[0]))
       .then((location: any) => {
-        this.setState({ address: description, location });
+        const filteredCarparks = this.state.carparks.filter(carpark => {
+          const carparkLatLng = {
+            lat: parseFloat(carpark.location.split(" ")[0]),
+            lng: parseFloat(carpark.location.split(" ")[1]),
+          };
+          return this.withinRadius(
+            location,
+            carparkLatLng,
+            parseInt(this.state.radius) / 1000
+          );
+        });
+        this.setState({ address: description, location, filteredCarparks });
       });
   }
 
@@ -109,14 +155,27 @@ class MainPage extends React.Component<any, IMainPageState> {
     if (navigator.geolocation) {
       const updatePosition = (position: Position) => {
         const { latitude, longitude } = position.coords;
+        const location = {
+          lat: latitude,
+          lng: longitude,
+        };
+        const filteredCarparks = this.state.carparks.filter(carpark => {
+          const carparkLatLng = {
+            lat: parseFloat(carpark.location.split(" ")[0]),
+            lng: parseFloat(carpark.location.split(" ")[1]),
+          };
+          return this.withinRadius(
+            location,
+            carparkLatLng,
+            parseInt(this.state.radius) / 1000
+          );
+        });
         Geocode.fromLatLng(latitude, longitude).then((response: any) => {
           const address = response.results[0].formatted_address;
           this.setState({
-            location: {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            },
+            location,
             address,
+            filteredCarparks,
           });
         });
       };
@@ -190,18 +249,18 @@ class MainPage extends React.Component<any, IMainPageState> {
           {/* End of form */}
 
           <section className="carparks-header">
-            3 carparks within radius
+            {this.state.filteredCarparks.length} carparks within radius
           </section>
           <div className="carparks">
-            {this.state.carparks.map(carpark => (
+            {this.state.filteredCarparks.map(carpark => (
               <CarparkInfo
                 key={carpark._id}
                 address={carpark.development}
                 subAddress={carpark.area}
                 numLots={carpark.availableLots}
                 location={{
-                  lat: parseInt(carpark.location.split(" ")[0]),
-                  lng: parseInt(carpark.location.split(" ")[1]),
+                  lat: parseFloat(carpark.location.split(" ")[0]),
+                  lng: parseFloat(carpark.location.split(" ")[1]),
                 }}
               />
             ))}
