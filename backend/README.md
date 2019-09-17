@@ -62,3 +62,12 @@ db.carparkAvailability.find({});
 - https://stackoverflow.com/questions/40580088/switch-between-mongo-production-and-test-database-java-spring-boot
 - https://www.nexsoftsys.com/articles/how-to-deploy-spring-boot-application-in-aws-ec2-server-quickly.html
 - https://geekyneha.wordpress.com/2018/11/17/how-to-deploy-spring-boot-application-on-aws-ec2/
+- https://www.callicoder.com/spring-boot-spring-security-jwt-mysql-react-app-part-1/
+- https://www.callicoder.com/spring-boot-security-oauth2-social-login-part-1/
+- https://spring.io/guides/gs/accessing-data-mysql/
+- https://stormpath.com/blog/secure-spring-boot-webapp-apache-letsencrypt-ssl
+- https://www.youtube.com/watch?v=QBFFs2m5m94
+- https://www.linode.com/docs/development/java/how-to-deploy-spring-boot-applications-nginx-ubuntu-16-04/
+- https://docs.mongodb.com/manual/reference/program/mongoexport/
+- https://docs.aws.amazon.com/systems-manager/latest/userguide/reference-cron-and-rate-expressions.html
+- https://docs.aws.amazon.com/cloudhsm/latest/userguide/ssl-offload-enable-traffic-and-verify-certificate.html
