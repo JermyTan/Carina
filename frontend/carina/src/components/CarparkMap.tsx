@@ -34,6 +34,9 @@ class CarparkMap extends Component<ICarparkMapProps, any> {
         gestureHandling="auto"
       >
         <Marker position={this.props.location} icon={CurrLocationSvg} />
+        {this.props.markers.map((marker: any, index: number) => (
+          <Marker key={index} position={marker} />
+        ))}
         <Circle
           radius={this.props.radius}
           center={this.props.location}

@@ -1,4 +1,5 @@
 import React from "react";
+import Axios from "axios";
 // @ts-ignore
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 // @ts-ignore
@@ -14,6 +15,22 @@ import "styles/Main.scss";
 
 Geocode.setApiKey(process.env.REACT_APP_GOOGLE_MAP_API_KEY);
 
+type Carpark = {
+  agency: string;
+  area: string;
+  availableLots: string;
+  carparkID: string;
+  development: string;
+  location: string;
+  lotType: string;
+  _id: string;
+};
+
+type Location = {
+  lat: string;
+  lng: string;
+};
+
 interface IMainPageState {
   location: {
     lat: number;
@@ -23,6 +40,9 @@ interface IMainPageState {
   radius: string;
 
   address: string;
+
+  carparks: Carpark[];
+  markers: Location[];
 }
 
 class MainPage extends React.Component<any, IMainPageState> {
@@ -37,12 +57,33 @@ class MainPage extends React.Component<any, IMainPageState> {
       zoom: 16,
       radius: "300",
       address: "Kent Ridge MRT Station",
+
+      carparks: [],
+      markers: [],
     };
 
     this.handleRadiusChange = this.handleRadiusChange.bind(this);
     this.handleBlur = this.handleBlur.bind(this);
     this.handleSelectLocation = this.handleSelectLocation.bind(this);
     this.requestLocation = this.requestLocation.bind(this);
+  }
+
+  componentDidMount() {
+    Axios.get(
+      `https://cors-anywhere.herokuapp.com/${process.env.REACT_APP_BACKEND_API}carpark-availability/`
+    ).then(response => {
+      if (response.status === 200) {
+        console.log(response.data);
+        const markers = response.data.map((carpark: Carpark) => {
+          const location = carpark.location.split(" ");
+          return { lat: location[0], lng: location[1] };
+        });
+        this.setState({
+          carparks: response.data,
+          markers,
+        });
+      }
+    });
   }
 
   handleRadiusChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -106,9 +147,6 @@ class MainPage extends React.Component<any, IMainPageState> {
   }
 
   render() {
-    const radiusInt =
-      this.state.radius === "" ? 0 : parseInt(this.state.radius);
-
     return (
       <div className="row no-gutters">
         <div className="col-lg-7 left-col">
@@ -155,16 +193,26 @@ class MainPage extends React.Component<any, IMainPageState> {
             3 carparks within radius
           </section>
           <div className="carparks">
-            {new Array(10).fill(0).map((i, k) => (
+            {this.state.carparks.map(carpark => (
               <CarparkInfo
-                key={k}
-                location={{ lat: 1.2935861, lng: 103.7844513 }}
+                key={carpark._id}
+                address={carpark.development}
+                subAddress={carpark.area}
+                numLots={carpark.availableLots}
+                location={{
+                  lat: parseInt(carpark.location.split(" ")[0]),
+                  lng: parseInt(carpark.location.split(" ")[1]),
+                }}
               />
             ))}
           </div>
         </div>
         <div className="map-wrapper col-lg-5">
-          <CarparkMap location={this.state.location} radius={radiusInt} />
+          <CarparkMap
+            location={this.state.location}
+            radius={this.state.radius === "" ? 0 : parseInt(this.state.radius)}
+            markers={this.state.markers}
+          />
         </div>
       </div>
     );
