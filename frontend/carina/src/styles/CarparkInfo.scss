@@ -56,3 +56,16 @@
 .expansion-wrapper {
   cursor: pointer;
 }
+
+.lot-histogram {
+  height: 10em;
+  padding-left: 3em;
+  padding-right: 3em;
+
+  @media screen and (max-width: 992px) {
+    height: 7em;
+    padding-top: 0;
+    padding-left: 1em;
+    padding-right: 1em;
+  }
+}
