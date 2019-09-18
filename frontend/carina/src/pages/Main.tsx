@@ -55,7 +55,7 @@ class MainPage extends React.Component<any, IMainPageState> {
     this.state = {
       location: {
         lat: 1.2935861,
-        lng: 103.7844513,
+        lng: 103.7844513
       },
       zoom: 16,
       radius: "300",
@@ -63,7 +63,7 @@ class MainPage extends React.Component<any, IMainPageState> {
 
       carparks: [],
       filteredCarparks: [],
-      markers: [],
+      markers: []
     };
 
     this.handleRadiusChange = this.handleRadiusChange.bind(this);
@@ -84,31 +84,25 @@ class MainPage extends React.Component<any, IMainPageState> {
         });
         this.setState({
           carparks: response.data,
-          markers,
+          markers
         });
       }
     });
   }
 
-  handleRadiusChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const filteredCarparks = this.state.carparks.filter(carpark => {
-      const carparkLatLng = {
-        lat: parseFloat(carpark.location.split(" ")[0]),
-        lng: parseFloat(carpark.location.split(" ")[1]),
-      };
-      return this.withinRadius(
-        this.state.location,
-        carparkLatLng,
-        parseInt(event.target.value) / 1000
-      );
-    });
-
-    this.setState({ radius: event.target.value, filteredCarparks });
+  updateCarparksWithinRadius(location: any, radius: string, address: string) {
+    const filteredCarparks = this.state.carparks.filter(carpark =>
+      this.withinRadius(carpark, location, parseInt(radius))
+    );
+    this.setState({ location, radius, address, filteredCarparks });
   }
 
-  withinRadius(center: any, point: any, radius: number) {
-    console.log(radius);
-    const R = 6371;
+  withinRadius(carpark: Carpark, center: any, radius: number) {
+    const point = {
+      lat: parseFloat(carpark.location.split(" ")[0]),
+      lng: parseFloat(carpark.location.split(" ")[1])
+    };
+    const R = 6371e3;
     const deg2rad = (n: number) => (n * Math.PI) / 180;
 
     const dLat = deg2rad(point.lat - center.lat);
@@ -125,9 +119,18 @@ class MainPage extends React.Component<any, IMainPageState> {
     return d <= radius;
   }
 
+  handleRadiusChange(event: React.ChangeEvent<HTMLInputElement>) {
+    this.setState({ radius: event.target.value });
+    this.updateCarparksWithinRadius(
+      this.state.location,
+      event.target.value,
+      this.state.address
+    );
+  }
+
   handleBlur() {
     this.setState({
-      radius: this.state.radius === "" ? "0" : this.state.radius,
+      radius: this.state.radius === "" ? "0" : this.state.radius
     });
   }
 
@@ -136,18 +139,11 @@ class MainPage extends React.Component<any, IMainPageState> {
     geocodeByPlaceId(place_id)
       .then((results: any) => getLatLng(results[0]))
       .then((location: any) => {
-        const filteredCarparks = this.state.carparks.filter(carpark => {
-          const carparkLatLng = {
-            lat: parseFloat(carpark.location.split(" ")[0]),
-            lng: parseFloat(carpark.location.split(" ")[1]),
-          };
-          return this.withinRadius(
-            location,
-            carparkLatLng,
-            parseInt(this.state.radius) / 1000
-          );
-        });
-        this.setState({ address: description, location, filteredCarparks });
+        this.updateCarparksWithinRadius(
+          location,
+          this.state.radius,
+          description
+        );
       });
   }
 
@@ -157,26 +153,11 @@ class MainPage extends React.Component<any, IMainPageState> {
         const { latitude, longitude } = position.coords;
         const location = {
           lat: latitude,
-          lng: longitude,
+          lng: longitude
         };
-        const filteredCarparks = this.state.carparks.filter(carpark => {
-          const carparkLatLng = {
-            lat: parseFloat(carpark.location.split(" ")[0]),
-            lng: parseFloat(carpark.location.split(" ")[1]),
-          };
-          return this.withinRadius(
-            location,
-            carparkLatLng,
-            parseInt(this.state.radius) / 1000
-          );
-        });
         Geocode.fromLatLng(latitude, longitude).then((response: any) => {
           const address = response.results[0].formatted_address;
-          this.setState({
-            location,
-            address,
-            filteredCarparks,
-          });
+          this.updateCarparksWithinRadius(location, this.state.radius, address);
         });
       };
 
@@ -216,7 +197,7 @@ class MainPage extends React.Component<any, IMainPageState> {
                 <GooglePlacesAutocomplete
                   inputClassName="form-control"
                   autocompletionRequest={{
-                    componentRestrictions: { country: "sg" },
+                    componentRestrictions: { country: "sg" }
                   }}
                   initialValue={this.state.address}
                   onSelect={this.handleSelectLocation}
@@ -260,7 +241,7 @@ class MainPage extends React.Component<any, IMainPageState> {
                 numLots={carpark.availableLots}
                 location={{
                   lat: parseFloat(carpark.location.split(" ")[0]),
-                  lng: parseFloat(carpark.location.split(" ")[1]),
+                  lng: parseFloat(carpark.location.split(" ")[1])
                 }}
               />
             ))}
