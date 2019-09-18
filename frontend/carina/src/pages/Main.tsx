@@ -120,7 +120,6 @@ class MainPage extends React.Component<any, IMainPageState> {
   }
 
   handleRadiusChange(event: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ radius: event.target.value });
     this.updateCarparksWithinRadius(
       this.state.location,
       event.target.value,
