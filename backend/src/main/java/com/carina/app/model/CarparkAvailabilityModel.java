@@ -3,7 +3,7 @@ package com.carina.app.model;
 import javax.persistence.*;
 
 @MappedSuperclass
-public class CarparkAvailabilityModel {
+public abstract class CarparkAvailabilityModel {
 
     @Id
     @Column(name = "carpark_id")
