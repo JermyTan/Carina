@@ -15,8 +15,8 @@ sudo mysql
 ```
 - Create user
 ```$xslt
-CREATE USER 'bengkala'@'localhost' IDENTIFIED BY 'bengkala';
-GRANT ALL PRIVILEGES ON * . * TO 'bengkala'@'localhost';
+CREATE USER 'lta'@'localhost' IDENTIFIED BY 'lta';
+GRANT ALL PRIVILEGES ON * . * TO 'lta'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
