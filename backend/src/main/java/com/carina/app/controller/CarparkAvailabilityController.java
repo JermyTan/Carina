@@ -4,7 +4,6 @@ import com.carina.app.model.CarparkAvailabilityMondayModel;
 import com.carina.app.repository.CarparkAvailabilityMondayRepository;
 import com.carina.app.service.CarparkAvailabilityService;
 import com.carina.app.template.CarparkAvailabilityMondayTemplate;
-import com.carina.app.utilities.DistanceCalculationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
