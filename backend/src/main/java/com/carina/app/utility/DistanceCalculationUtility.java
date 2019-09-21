@@ -1,8 +1,8 @@
-package com.carina.app.utilities;
+package com.carina.app.utility;
 
 import com.carina.app.constant.DistanceConstant;
 
-public class DistanceCalculationUtilities {
+public class DistanceCalculationUtility {
 
     // https://stackoverflow.com/questions/19412462/getting-distance-between-two-points-based-on-latitude-longitude
     private static double getDistance(

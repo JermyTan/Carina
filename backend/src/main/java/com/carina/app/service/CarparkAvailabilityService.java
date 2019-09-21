@@ -1,7 +1,7 @@
 package com.carina.app.service;
 
 import com.carina.app.model.CarparkAvailabilityModel;
-import com.carina.app.utilities.DistanceCalculationUtilities;
+import com.carina.app.utility.DistanceCalculationUtility;
 
 import java.util.ArrayList;
 
@@ -15,7 +15,7 @@ public class CarparkAvailabilityService {
         for (CarparkAvailabilityModel carparkAvailabilityModel : listOfCarparkAvailabilityMondayModels) {
             double latitudeDestination = carparkAvailabilityModel.getLatitude();
             double longitudeDestination = carparkAvailabilityModel.getLongitude();
-            if (DistanceCalculationUtilities.withinPromixity(
+            if (DistanceCalculationUtility.withinPromixity(
                     latitudeSource, longitudeSource,
                     latitudeDestination, longitudeDestination,
                     radiusProximity

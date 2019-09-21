@@ -1,7 +1,8 @@
 package com.carina.app.template;
 
+import com.carina.app.utility.CarparkAvailabilityMapQueryUtility;
+import com.carina.app.constant.DayOfWeekConstant;
 import com.carina.app.model.CarparkAvailabilityModel;
-import com.carina.app.model.CarparkAvailabilityMondayModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -9,8 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Repository
 public class CarparkAvailabilityTemplate {
@@ -18,30 +18,28 @@ public class CarparkAvailabilityTemplate {
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public List<CarparkAvailabilityModel> findAll(String day) {
-        final String FETCH_BY_QUERIES_SQL = "SELECT * FROM carpark_availability_monday ";
+    public List<CarparkAvailabilityModel> findAll(DayOfWeekConstant day) {
+        String FIND_ALL_QUERY = CarparkAvailabilityMapQueryUtility.getMapFindAllQuery(day);
         return namedParameterJdbcTemplate.query(
-                FETCH_BY_QUERIES_SQL,
+                FIND_ALL_QUERY,
                 (resultSet, i) -> toCarparkAvailabilityModel(resultSet)
         );
     }
 
     public List<CarparkAvailabilityModel> getCarparkAvailabilityByQueries(
+            DayOfWeekConstant day,
             Set<String> areas,
             Set<String> developments,
             Set<String> lotTypes
     ) {
-        final String FETCH_BY_QUERIES_SQL = "SELECT * FROM carpark_availability_monday " +
-                "where (area IN (:areas)) " +
-                "OR (development IN (:developments)) " +
-                "OR (lot_type IN (:lotTypes))";
+        final String FETCH_BY_QUERY = CarparkAvailabilityMapQueryUtility.getMapFetchQuery(day);
 
         MapSqlParameterSource parameterSource = new MapSqlParameterSource();
         parameterSource.addValue("areas", areas);
         parameterSource.addValue("developments", developments);
         parameterSource.addValue("lotTypes", lotTypes);
         return namedParameterJdbcTemplate.query(
-                FETCH_BY_QUERIES_SQL,
+                FETCH_BY_QUERY,
                 parameterSource,
                 (resultSet, i) -> toCarparkAvailabilityModel(resultSet)
         );
