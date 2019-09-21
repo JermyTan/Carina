@@ -1,27 +1,27 @@
-package com.carina.backend;
+package com.carina.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.bind.annotation.RequestMapping;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
-@EnableCaching
+@RequestMapping
 @EnableSwagger2
-public class BackendApplication {
+public class AppApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BackendApplication.class, args);
+		SpringApplication.run(AppApplication.class, args);
 	}
 
 	@Bean
-	public Docket productApi() {
+	public Docket swaggerAPI() {
 		return new Docket(DocumentationType.SWAGGER_2).select()
-				.apis(RequestHandlerSelectors.basePackage("com.carina.backend")).build();
+				.apis(RequestHandlerSelectors.basePackage("com.carina.app")).build();
 	}
 
 }
