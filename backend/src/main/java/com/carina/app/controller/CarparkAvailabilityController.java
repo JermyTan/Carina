@@ -1,6 +1,7 @@
 package com.carina.app.controller;
 
 import com.carina.app.model.CarparkAvailabilityModel;
+import com.carina.app.payload.CarparkAvailabilityPayload;
 import com.carina.app.service.CarparkAvailabilityService;
 import com.carina.app.template.CarparkAvailabilityTemplate;
 import com.carina.app.validation.DayOfWeekValidation;
@@ -19,12 +20,14 @@ public class CarparkAvailabilityController {
     private CarparkAvailabilityTemplate carparkAvailabilityTemplate;
 
     @GetMapping("/carpark-availability")
-    public List<CarparkAvailabilityModel> getCarparkAvailability(@RequestParam() String day) {
-        return carparkAvailabilityTemplate.findAll(DayOfWeekValidation.parseDayOfWeek(day));
+    public CarparkAvailabilityPayload getCarparkAvailability(@RequestParam() String day) {
+        return new CarparkAvailabilityPayload(
+                carparkAvailabilityTemplate.findAll(DayOfWeekValidation.parseDayOfWeek(day))
+        );
     }
 
     @GetMapping("/carpark-availability/queries")
-    public List<CarparkAvailabilityModel> getCarparkAvailabilityByQueries(
+    public CarparkAvailabilityPayload getCarparkAvailabilityByQueries(
             @RequestParam(defaultValue = ",") Set<String> days,
             @RequestParam(defaultValue = ",") Set<String> area,
             @RequestParam(defaultValue = ",") Set<String> development,
@@ -38,11 +41,11 @@ public class CarparkAvailabilityController {
                     )
             );
         }
-        return listOfCarparkAvailabilityModels;
+        return new CarparkAvailabilityPayload(listOfCarparkAvailabilityModels);
     }
 
     @GetMapping("/carpark-availability/nearest")
-    public List<CarparkAvailabilityModel> getCarparkAvailabilityNearest(
+    public CarparkAvailabilityPayload getCarparkAvailabilityNearest(
             @RequestParam() String day,
             @RequestParam String latitude,
             @RequestParam String longitude,
@@ -55,14 +58,15 @@ public class CarparkAvailabilityController {
                 (ArrayList<CarparkAvailabilityModel>) carparkAvailabilityTemplate
                         .findAll(DayOfWeekValidation.parseDayOfWeek(day));
 
-        return CarparkAvailabilityService.getNearestCarpark(
+        return new CarparkAvailabilityPayload(
+                CarparkAvailabilityService.getNearestCarpark(
                 latitudeSource, longitudeSource, radiusProximity,
                 listOfCarparkAvailabilityModels
-        );
+        ));
     }
 
     @GetMapping("/carpark-availability/nearest/queries")
-    public List<CarparkAvailabilityModel> getCarparkAvailabilityNearestByQueries(
+    public CarparkAvailabilityPayload getCarparkAvailabilityNearestByQueries(
             @RequestParam() String day,
             @RequestParam(defaultValue = ",") Set<String> area,
             @RequestParam(defaultValue = ",") Set<String> development,
@@ -80,10 +84,11 @@ public class CarparkAvailabilityController {
                                 DayOfWeekValidation.parseDayOfWeek(day), area, development, lotType
                         );
 
-        return CarparkAvailabilityService.getNearestCarpark(
+        return new CarparkAvailabilityPayload(
+                CarparkAvailabilityService.getNearestCarpark(
                 latitudeSource, longitudeSource, radiusProximity,
                 listOfCarparkAvailabilityMondayModels
-        );
+        ));
     }
 
 }
