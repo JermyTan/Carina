@@ -19,7 +19,6 @@ public class CarparkAvailabilityMondayTemplate {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public List<CarparkAvailabilityMondayModel> getCarparkAvailabilityByQueries(
-            Set<String> days,
             Set<String> areas,
             Set<String> developments,
             Set<String> lotTypes

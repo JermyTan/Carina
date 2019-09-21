@@ -5,7 +5,7 @@ import com.carina.app.constant.DistanceConstant;
 public class DistanceCalculationService {
 
     // https://stackoverflow.com/questions/19412462/getting-distance-between-two-points-based-on-latitude-longitude
-    public static double getDistance(
+    private static double getDistance(
             double lat1, double lon1,
             double lat2, double lon2
     ) {
@@ -15,4 +15,14 @@ public class DistanceCalculationService {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return DistanceConstant.RADIUS_OF_EARTH * c;
     }
+
+    public static boolean withinPromixity (
+            double lat1, double lon1,
+            double lat2, double lon2,
+            double radius
+    ) {
+        double distance = getDistance(lat1, lon1, lat2, lon2);
+        return distance < radius;
+    }
+
 }
