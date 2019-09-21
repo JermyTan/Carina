@@ -5,7 +5,7 @@ import com.carina.app.constant.DistanceConstant;
 public class DistanceCalculationUtility {
 
     // https://stackoverflow.com/questions/19412462/getting-distance-between-two-points-based-on-latitude-longitude
-    private static double getDistance(
+    public static double getDistance(
             double lat1, double lon1,
             double lat2, double lon2
     ) {
