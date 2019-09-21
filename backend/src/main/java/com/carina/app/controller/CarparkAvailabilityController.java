@@ -1,9 +1,9 @@
 package com.carina.app.controller;
 
+import com.carina.app.model.CarparkAvailabilityModel;
 import com.carina.app.model.CarparkAvailabilityMondayModel;
-import com.carina.app.repository.CarparkAvailabilityMondayRepository;
 import com.carina.app.service.CarparkAvailabilityService;
-import com.carina.app.template.CarparkAvailabilityMondayTemplate;
+import com.carina.app.template.CarparkAvailabilityTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,34 +16,26 @@ import java.util.Set;
 public class CarparkAvailabilityController {
 
     @Autowired
-    private CarparkAvailabilityMondayRepository carparkAvailabilityMondayRepository;
-
-    @Autowired
-    private CarparkAvailabilityMondayTemplate carparkAvailabilityMondayTemplate;
+    private CarparkAvailabilityTemplate carparkAvailabilityTemplate;
 
     @GetMapping("/carpark-availability")
-    public List<CarparkAvailabilityMondayModel> getCarparkAvailability() {
-        return carparkAvailabilityMondayRepository.findAll();
-    }
-
-    @GetMapping("/carpark-availability/carpark-id-{idStr}")
-    public List<CarparkAvailabilityMondayModel> getCarparkAvailabilityById(@PathVariable("idStr") String idStr) {
-        return carparkAvailabilityMondayRepository.findByCarparkId(idStr);
+    public List<CarparkAvailabilityModel> getCarparkAvailability(@RequestParam() String day) {
+        return carparkAvailabilityTemplate.findAll(day);
     }
 
     @GetMapping("/carpark-availability/queries")
-    public List<CarparkAvailabilityMondayModel> getCarparkAvailabilityByQueries(
+    public List<CarparkAvailabilityModel> getCarparkAvailabilityByQueries(
             @RequestParam(defaultValue = ",") Set<String> day,
             @RequestParam(defaultValue = ",") Set<String> area,
             @RequestParam(defaultValue = ",") Set<String> development,
             @RequestParam(defaultValue = ",") Set<String> lotType
     ) {
 
-        return carparkAvailabilityMondayTemplate.getCarparkAvailabilityByQueries(area, development, lotType);
+        return carparkAvailabilityTemplate.getCarparkAvailabilityByQueries(area, development, lotType);
     }
 
     @GetMapping("/carpark-availability/nearest")
-    public List<CarparkAvailabilityMondayModel> getCarparkAvailabilityNearest(
+    public List<CarparkAvailabilityModel> getCarparkAvailabilityNearest(
             @RequestParam() String day,
             @RequestParam String latitude,
             @RequestParam String longitude,
@@ -52,14 +44,17 @@ public class CarparkAvailabilityController {
         double latitudeSource = Double.parseDouble(latitude);
         double longitudeSource = Double.parseDouble(longitude);
         double radiusProximity = Double.parseDouble(radius);
-        ArrayList<CarparkAvailabilityMondayModel> listOfCarparkAvailabilityMondayModels =
-                (ArrayList<CarparkAvailabilityMondayModel>) carparkAvailabilityMondayRepository.findAll();
+        ArrayList<CarparkAvailabilityModel> listOfCarparkAvailabilityModels =
+                (ArrayList<CarparkAvailabilityModel>) carparkAvailabilityTemplate.findAll(day);
 
-        return CarparkAvailabilityService.getNearestCarpark(latitudeSource, longitudeSource, radiusProximity, listOfCarparkAvailabilityMondayModels);
+        return CarparkAvailabilityService.getNearestCarpark(
+                latitudeSource, longitudeSource, radiusProximity,
+                listOfCarparkAvailabilityModels
+        );
     }
 
     @GetMapping("/carpark-availability/nearest/queries")
-    public List<CarparkAvailabilityMondayModel> getCarparkAvailabilityNearestByQueries(
+    public List<CarparkAvailabilityModel> getCarparkAvailabilityNearestByQueries(
             @RequestParam() String day,
             @RequestParam(defaultValue = ",") Set<String> area,
             @RequestParam(defaultValue = ",") Set<String> development,
@@ -71,10 +66,14 @@ public class CarparkAvailabilityController {
         double latitudeSource = Double.parseDouble(latitude);
         double longitudeSource = Double.parseDouble(longitude);
         double radiusProximity = Double.parseDouble(radius);
-        ArrayList<CarparkAvailabilityMondayModel> listOfCarparkAvailabilityMondayModels =
-                (ArrayList<CarparkAvailabilityMondayModel>) carparkAvailabilityMondayTemplate.getCarparkAvailabilityByQueries(area, development, lotType);
+        ArrayList<CarparkAvailabilityModel> listOfCarparkAvailabilityMondayModels =
+                (ArrayList<CarparkAvailabilityModel>) carparkAvailabilityTemplate
+                        .getCarparkAvailabilityByQueries(area, development, lotType);
 
-        return CarparkAvailabilityService.getNearestCarpark(latitudeSource, longitudeSource, radiusProximity, listOfCarparkAvailabilityMondayModels);
+        return CarparkAvailabilityService.getNearestCarpark(
+                latitudeSource, longitudeSource, radiusProximity,
+                listOfCarparkAvailabilityMondayModels
+        );
     }
 
 }

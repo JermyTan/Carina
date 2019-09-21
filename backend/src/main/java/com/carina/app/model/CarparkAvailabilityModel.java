@@ -3,7 +3,7 @@ package com.carina.app.model;
 import javax.persistence.*;
 
 @MappedSuperclass
-public abstract class CarparkAvailabilityModel {
+public class CarparkAvailabilityModel {
 
     @Id
     @Column(name = "carpark_id")
@@ -33,7 +33,7 @@ public abstract class CarparkAvailabilityModel {
     @Column(name = "timestamp")
     private long timestamp;
 
-    CarparkAvailabilityModel() {}
+    public CarparkAvailabilityModel() {}
 
     public void setCarparkId(String carparkId) {
         this.carparkId = carparkId;

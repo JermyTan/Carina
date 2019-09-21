@@ -7,15 +7,20 @@ import java.util.ArrayList;
 
 public class CarparkAvailabilityService {
 
-    public static <T extends CarparkAvailabilityModel> ArrayList<T> getNearestCarpark(
-            double latitudeSource, double longitudeSource, double radiusProximity, ArrayList<T> listOfCarparkAvailabilityMondayModels
+    public static ArrayList<CarparkAvailabilityModel> getNearestCarpark(
+            double latitudeSource, double longitudeSource, double radiusProximity,
+            ArrayList<CarparkAvailabilityModel> listOfCarparkAvailabilityMondayModels
     ) {
-        ArrayList<T> listOfNearestCarparkAvailabilityMondayModels = new ArrayList<>();
-        for (T carparkAvailabilityMondayModel : listOfCarparkAvailabilityMondayModels) {
-            double latitudeDestination = carparkAvailabilityMondayModel.getLatitude();
-            double longitudeDestination = carparkAvailabilityMondayModel.getLongitude();
-            if (DistanceCalculationUtilities.withinPromixity(latitudeSource, longitudeSource, latitudeDestination, longitudeDestination, radiusProximity )) {
-                listOfNearestCarparkAvailabilityMondayModels.add(carparkAvailabilityMondayModel);
+        ArrayList<CarparkAvailabilityModel> listOfNearestCarparkAvailabilityMondayModels = new ArrayList<>();
+        for (CarparkAvailabilityModel carparkAvailabilityModel : listOfCarparkAvailabilityMondayModels) {
+            double latitudeDestination = carparkAvailabilityModel.getLatitude();
+            double longitudeDestination = carparkAvailabilityModel.getLongitude();
+            if (DistanceCalculationUtilities.withinPromixity(
+                    latitudeSource, longitudeSource,
+                    latitudeDestination, longitudeDestination,
+                    radiusProximity
+            )) {
+                listOfNearestCarparkAvailabilityMondayModels.add(carparkAvailabilityModel);
             }
 
         }
