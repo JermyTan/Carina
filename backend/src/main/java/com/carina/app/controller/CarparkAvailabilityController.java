@@ -42,6 +42,22 @@ public class CarparkAvailabilityController {
         return carparkAvailabilityMondayTemplate.getCarparkAvailabilityByQueries(area, development, lotType);
     }
 
+    @GetMapping("/carpark-availability/nearest")
+    public List<CarparkAvailabilityMondayModel> getCarparkAvailabilityNearest(
+            @RequestParam() String day,
+            @RequestParam String latitude,
+            @RequestParam String longitude,
+            @RequestParam String radius
+    ) {
+        double latitudeSource = Double.parseDouble(latitude);
+        double longitudeSource = Double.parseDouble(longitude);
+        double radiusProximity = Double.parseDouble(radius);
+        ArrayList<CarparkAvailabilityMondayModel> listOfCarparkAvailabilityMondayModels =
+                (ArrayList<CarparkAvailabilityMondayModel>) carparkAvailabilityMondayRepository.findAll();
+
+        return CarparkAvailabilityService.getNearestCarpark(latitudeSource, longitudeSource, radiusProximity, listOfCarparkAvailabilityMondayModels);
+    }
+
     @GetMapping("/carpark-availability/nearest/queries")
     public List<CarparkAvailabilityMondayModel> getCarparkAvailabilityNearestByQueries(
             @RequestParam() String day,
