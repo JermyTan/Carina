@@ -1,10 +1,11 @@
 package com.carina.app.validation;
 
 import com.carina.app.constant.DayOfWeekConstant;
+import com.carina.app.exception.InvalidDayException;
 
 public class DayOfWeekValidation {
 
-    public static DayOfWeekConstant parseDayOfWeek(String day) {
+    public static DayOfWeekConstant parseDayOfWeek(String day) throws InvalidDayException {
         DayOfWeekConstant parseDay;
         switch (day.toLowerCase()) {
             case "monday":
@@ -25,8 +26,11 @@ public class DayOfWeekValidation {
             case "saturday":
                 parseDay = DayOfWeekConstant.SATURDAY;
                 break;
-            default:
+            case "sunday":
                 parseDay = DayOfWeekConstant.SUNDAY;
+                break;
+            default:
+                throw new InvalidDayException(day + "is an invalid day");
         }
         return parseDay;
     }
