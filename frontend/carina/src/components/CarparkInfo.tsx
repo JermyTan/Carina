@@ -4,10 +4,13 @@ import "styles/CarparkInfo.scss";
 import ExpandMoreSvg from "./svgrs/ExpandMoreSvg";
 import ExpandLessSvg from "./svgrs/ExpandLessSvg";
 import DirectionsSvg from "./svgrs/DirectionsSvg";
+import star from "../svgs/favourite.svg";
+import starFilled from "../svgs/favourited.svg";
 import HistogramChart, { HistogramData } from "./HistogramChart";
 
 interface ICarparkInfoState {
   isExpanded: boolean;
+  isFavourited: boolean;
 }
 
 interface ICarparkInfoProps {
@@ -31,13 +34,19 @@ class CarparkInfo extends React.Component<
     super(props);
     this.state = {
       isExpanded: false,
+      isFavourited: false
     };
 
     this.handleExpand = this.handleExpand.bind(this);
+    this.handleFavourite = this.handleFavourite.bind(this);
   }
 
   handleExpand() {
     this.setState({ isExpanded: !this.state.isExpanded });
+  }
+
+  handleFavourite() {
+    this.setState({ isFavourited: !this.state.isFavourited });
   }
 
   render() {
@@ -45,7 +54,7 @@ class CarparkInfo extends React.Component<
       GOOGLE_MAP_REDIR_URL_PREFIX,
       this.props.location.lat,
       ",",
-      this.props.location.lng,
+      this.props.location.lng
     ].join("");
     return (
       <div className="info-wrapper">
@@ -57,6 +66,18 @@ class CarparkInfo extends React.Component<
                 {this.props.subAddress}
               </h6>
             </div>
+
+            <div className="favourite">
+              <img
+                className="favourite-icon"
+                src={this.state.isFavourited ? starFilled : star}
+                onClick={this.handleFavourite}
+              />
+              <div className="label">
+                {this.state.isFavourited ? "Favourited" : "Favourite"}
+              </div>
+            </div>
+
             <div className="carpark-lots">
               <div>{this.props.numLots}</div>
               <div className="card-subtitle text-muted">lots left</div>
