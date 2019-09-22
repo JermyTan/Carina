@@ -15,6 +15,9 @@ interface ICarparkInfoProps {
     lat: number;
     lng: number;
   };
+  address: string;
+  subAddress: string;
+  numLots: string;
 }
 
 const GOOGLE_MAP_REDIR_URL_PREFIX =
@@ -49,11 +52,13 @@ class CarparkInfo extends React.Component<
         <div className="info card">
           <div className="card-body d-flex no-gutters justify-content-between">
             <div className="carpark-addresses">
-              <h5 className="card-title">Carpark Address</h5>
-              <h6 className="card-subtitle text-muted">Carpark subtitle</h6>
+              <h5 className="card-title">{this.props.address}</h5>
+              <h6 className="card-subtitle text-muted">
+                {this.props.subAddress}
+              </h6>
             </div>
             <div className="carpark-lots">
-              <div>342</div>
+              <div>{this.props.numLots}</div>
               <div className="card-subtitle text-muted">lots left</div>
             </div>
           </div>
