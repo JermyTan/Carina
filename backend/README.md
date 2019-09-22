@@ -57,3 +57,7 @@ FLUSH PRIVILEGES;
 - https://www.baeldung.com/spring-boot-app-as-a-service
 - https://docs.spring.io/spring-boot/docs/current/reference/html/deployment-install.html
 - https://medium.com/@manjiki/running-spring-boot-applications-as-system-services-on-linux-5ea5f148c39a
+- http://techgenix.com/namecheap-aws-ec2-linux/
+- https://www.digitalocean.com/community/tutorials/how-to-set-up-let-s-encrypt-with-nginx-server-blocks-on-ubuntu-16-04
+- https://www.digitalocean.com/community/questions/sudo-ufw-status-return-inactive
+- https://www.digitalocean.com/community/tutorials/how-to-setup-a-firewall-with-ufw-on-an-ubuntu-and-debian-cloud-server
