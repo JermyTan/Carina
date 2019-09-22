@@ -10,7 +10,8 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
 @Repository
 public class CarparkAvailabilityTemplate {
@@ -18,34 +19,47 @@ public class CarparkAvailabilityTemplate {
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
+    /**
+     * Returns the carparks queried for the instance in time.
+     * @param day queried day of the week.
+     * @return list of carparks queried.
+     */
     public List<CarparkAvailabilityModel> findAll(DayOfWeekConstant day) {
-        String FIND_ALL_QUERY = CarparkAvailabilityMapQueryUtility.getMapFindAllQuery(day);
+        String findAllQuery = CarparkAvailabilityMapQueryUtility.getMapFindAllQuery(day);
         return namedParameterJdbcTemplate.query(
-                FIND_ALL_QUERY,
-                (resultSet, i) -> toCarparkAvailabilityModel(resultSet)
+                findAllQuery,
+            (resultSet, i) -> toCarparkAvailabilityModel(resultSet)
         );
     }
 
+    /**
+     * Returns the carparks if queried.
+     * @param day queried day of the week.
+     * @param areas queried list of areas.
+     * @param developments queried list of developments.
+     * @param lotTypes queried list of type of lots.
+     * @return list of carparks queried.
+     */
     public List<CarparkAvailabilityModel> getCarparkAvailabilityByQueries(
             DayOfWeekConstant day,
             Set<String> areas,
             Set<String> developments,
             Set<String> lotTypes
     ) {
-        final String FETCH_BY_QUERY = CarparkAvailabilityMapQueryUtility.getMapFetchQuery(day);
+        final String fetchByQuery = CarparkAvailabilityMapQueryUtility.getMapFetchQuery(day);
 
         MapSqlParameterSource parameterSource = new MapSqlParameterSource();
         parameterSource.addValue("areas", areas);
         parameterSource.addValue("developments", developments);
         parameterSource.addValue("lotTypes", lotTypes);
         return namedParameterJdbcTemplate.query(
-                FETCH_BY_QUERY,
+                fetchByQuery,
                 parameterSource,
-                (resultSet, i) -> toCarparkAvailabilityModel(resultSet)
+            (resultSet, i) -> toCarparkAvailabilityModel(resultSet)
         );
     }
 
-    private CarparkAvailabilityModel toCarparkAvailabilityModel (ResultSet rs) throws SQLException {
+    private CarparkAvailabilityModel toCarparkAvailabilityModel(ResultSet rs) throws SQLException {
         CarparkAvailabilityModel carparkAvailabilityModel = new CarparkAvailabilityModel();
         carparkAvailabilityModel.setArea(rs.getString("area"));
         carparkAvailabilityModel.setLongitude(rs.getDouble("longitude"));

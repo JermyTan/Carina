@@ -11,7 +11,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(InvalidDayException.class)
-    private ResponseEntity<ErrorPayload> validationError(InvalidDayException ex){
+    private ResponseEntity<ErrorPayload> validationError(InvalidDayException ex) {
         ErrorPayload error = new ErrorPayload(HttpStatus.UNPROCESSABLE_ENTITY, "Invalid day", ex.getMessage());
 
         return new ResponseEntity<>(error, HttpStatus.UNPROCESSABLE_ENTITY);

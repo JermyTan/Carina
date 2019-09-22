@@ -5,6 +5,14 @@ import com.carina.app.constant.DistanceConstant;
 public class DistanceCalculationUtility {
 
     // https://stackoverflow.com/questions/19412462/getting-distance-between-two-points-based-on-latitude-longitude
+    /**
+     * Returns the distance between source and destination.
+     * @param lat1 latitude of source.
+     * @param lon1 longitude of source.
+     * @param lat2 latitude of destination.
+     * @param lon2 longitude of destination.
+     * @return distance between source and destination.
+     */
     public static double getDistance(
             double lat1, double lon1,
             double lat2, double lon2
@@ -16,7 +24,16 @@ public class DistanceCalculationUtility {
         return DistanceConstant.RADIUS_OF_EARTH * c;
     }
 
-    public static boolean withinPromixity (
+    /**
+     * Returns true if the given coordinate is within proximity.
+     * @param lat1 latitude of source.
+     * @param lon1 longitude of source.
+     * @param lat2 latitude of destination.
+     * @param lon2 longitude of destination.
+     * @param radius radius from source.
+     * @return true if within proximity.
+     */
+    public static boolean withinPromixity(
             double lat1, double lon1,
             double lat2, double lon2,
             double radius

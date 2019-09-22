@@ -1,6 +1,9 @@
 package com.carina.app.model;
 
-import javax.persistence.*;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.Id;
+import javax.persistence.Column;
+
 
 @MappedSuperclass
 public class CarparkAvailabilityModel {
@@ -33,7 +36,8 @@ public class CarparkAvailabilityModel {
     @Column(name = "timestamp")
     private long timestamp;
 
-    public CarparkAvailabilityModel() {}
+    public CarparkAvailabilityModel() {
+    }
 
     public void setCarparkId(String carparkId) {
         this.carparkId = carparkId;

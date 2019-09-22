@@ -16,6 +16,12 @@ public class ErrorPayload {
 
     private int code;
 
+    /**
+     * Creates instance for error payload.
+     * @param httpStatus http status.
+     * @param message error message.
+     * @param details error details.
+     */
     public ErrorPayload(HttpStatus httpStatus, String message, String details) {
         this.httpStatus = httpStatus;
         this.code = httpStatus.value();
