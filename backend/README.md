@@ -54,3 +54,6 @@ FLUSH PRIVILEGES;
 - https://spring.io/guides/gs/accessing-data-mysql/
 - https://www.youtube.com/watch?v=QBFFs2m5m94
 - https://www.linode.com/docs/development/java/how-to-deploy-spring-boot-applications-nginx-ubuntu-16-04/
+- https://www.baeldung.com/spring-boot-app-as-a-service
+- https://docs.spring.io/spring-boot/docs/current/reference/html/deployment-install.html
+- https://medium.com/@manjiki/running-spring-boot-applications-as-system-services-on-linux-5ea5f148c39a
