@@ -7,6 +7,8 @@ CREATE TABLE `carpark_availability_monday` (
   `available_lots` int(8) unsigned NOT NULL,
   `lot_type` varchar(255) NOT NULL,
   `agency` varchar(255) NOT NULL,
+  `hour` int(8) unsigned NOT NULL,
+  `day` varchar(255) NOT NULL,
   `timestamp` bigint(16) unsigned NOT NULL,
   PRIMARY KEY (`carpark_id`),
   UNIQUE KEY `carparkId_UNIQUE` (`carpark_id`)
@@ -21,6 +23,8 @@ CREATE TABLE `carpark_availability_tuesday` (
   `available_lots` int(8) unsigned NOT NULL,
   `lot_type` varchar(255) NOT NULL,
   `agency` varchar(255) NOT NULL,
+  `hour` int(8) unsigned NOT NULL,
+  `day` varchar(255) NOT NULL,
   `timestamp` bigint(16) unsigned NOT NULL,
   PRIMARY KEY (`carpark_id`),
   UNIQUE KEY `carparkId_UNIQUE` (`carpark_id`)
@@ -35,6 +39,8 @@ CREATE TABLE `carpark_availability_wednesday` (
   `available_lots` int(8) unsigned NOT NULL,
   `lot_type` varchar(255) NOT NULL,
   `agency` varchar(255) NOT NULL,
+  `hour` int(8) unsigned NOT NULL,
+  `day` varchar(255) NOT NULL,
   `timestamp` bigint(16) unsigned NOT NULL,
   PRIMARY KEY (`carpark_id`),
   UNIQUE KEY `carparkId_UNIQUE` (`carpark_id`)
@@ -49,6 +55,8 @@ CREATE TABLE `carpark_availability_thursday` (
   `available_lots` int(8) unsigned NOT NULL,
   `lot_type` varchar(255) NOT NULL,
   `agency` varchar(255) NOT NULL,
+  `hour` int(8) unsigned NOT NULL,
+  `day` varchar(255) NOT NULL,
   `timestamp` bigint(16) unsigned NOT NULL,
   PRIMARY KEY (`carpark_id`),
   UNIQUE KEY `carparkId_UNIQUE` (`carpark_id`)
@@ -63,6 +71,8 @@ CREATE TABLE `carpark_availability_friday` (
   `available_lots` int(8) unsigned NOT NULL,
   `lot_type` varchar(255) NOT NULL,
   `agency` varchar(255) NOT NULL,
+  `hour` int(8) unsigned NOT NULL,
+  `day` varchar(255) NOT NULL,
   `timestamp` bigint(16) unsigned NOT NULL,
   PRIMARY KEY (`carpark_id`),
   UNIQUE KEY `carparkId_UNIQUE` (`carpark_id`)
@@ -77,6 +87,8 @@ CREATE TABLE `carpark_availability_saturday` (
   `available_lots` int(8) unsigned NOT NULL,
   `lot_type` varchar(255) NOT NULL,
   `agency` varchar(255) NOT NULL,
+  `hour` int(8) unsigned NOT NULL,
+  `day` varchar(255) NOT NULL,
   `timestamp` bigint(16) unsigned NOT NULL,
   PRIMARY KEY (`carpark_id`),
   UNIQUE KEY `carparkId_UNIQUE` (`carpark_id`)
@@ -91,6 +103,8 @@ CREATE TABLE `carpark_availability_sunday` (
   `available_lots` int(8) unsigned NOT NULL,
   `lot_type` varchar(255) NOT NULL,
   `agency` varchar(255) NOT NULL,
+  `hour` int(8) unsigned NOT NULL,
+  `day` varchar(255) NOT NULL,
   `timestamp` bigint(16) unsigned NOT NULL,
   PRIMARY KEY (`carpark_id`),
   UNIQUE KEY `carparkId_UNIQUE` (`carpark_id`)
