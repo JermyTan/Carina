@@ -9,7 +9,6 @@ import Geocode from "react-geocode";
 
 import CarparkMap from "../components/CarparkMap";
 import CarparkInfo from "../components/CarparkInfo";
-import LocationSvg from "../components/svgrs/LocationSvg";
 
 import "styles/Main.scss";
 
@@ -55,7 +54,7 @@ class MainPage extends React.Component<any, IMainPageState> {
     this.state = {
       location: {
         lat: 1.2935861,
-        lng: 103.7844513
+        lng: 103.7844513,
       },
       zoom: 16,
       radius: "300",
@@ -63,13 +62,14 @@ class MainPage extends React.Component<any, IMainPageState> {
 
       carparks: [],
       filteredCarparks: [],
-      markers: []
+      markers: [],
     };
 
     this.handleRadiusChange = this.handleRadiusChange.bind(this);
     this.handleBlur = this.handleBlur.bind(this);
     this.handleSelectLocation = this.handleSelectLocation.bind(this);
     this.requestLocation = this.requestLocation.bind(this);
+    this.handleClear = this.handleClear.bind(this);
   }
 
   componentDidMount() {
@@ -84,7 +84,7 @@ class MainPage extends React.Component<any, IMainPageState> {
         });
         this.setState({
           carparks: response.data,
-          markers
+          markers,
         });
       }
     });
@@ -100,7 +100,7 @@ class MainPage extends React.Component<any, IMainPageState> {
   withinRadius(carpark: Carpark, center: any, radius: number) {
     const point = {
       lat: parseFloat(carpark.location.split(" ")[0]),
-      lng: parseFloat(carpark.location.split(" ")[1])
+      lng: parseFloat(carpark.location.split(" ")[1]),
     };
     const R = 6371e3;
     const deg2rad = (n: number) => (n * Math.PI) / 180;
@@ -129,7 +129,7 @@ class MainPage extends React.Component<any, IMainPageState> {
 
   handleBlur() {
     this.setState({
-      radius: this.state.radius === "" ? "0" : this.state.radius
+      radius: this.state.radius === "" ? "0" : this.state.radius,
     });
   }
 
@@ -146,13 +146,19 @@ class MainPage extends React.Component<any, IMainPageState> {
       });
   }
 
+  handleClear() {
+    this.setState({
+      address: " ",
+    });
+  }
+
   requestLocation() {
     if (navigator.geolocation) {
       const updatePosition = (position: Position) => {
         const { latitude, longitude } = position.coords;
         const location = {
           lat: latitude,
-          lng: longitude
+          lng: longitude,
         };
         Geocode.fromLatLng(latitude, longitude).then((response: any) => {
           const address = response.results[0].formatted_address;
@@ -196,18 +202,22 @@ class MainPage extends React.Component<any, IMainPageState> {
                 <GooglePlacesAutocomplete
                   inputClassName="form-control"
                   autocompletionRequest={{
-                    componentRestrictions: { country: "sg" }
+                    componentRestrictions: { country: "sg" },
                   }}
                   initialValue={this.state.address}
                   onSelect={this.handleSelectLocation}
                 />
                 <div className="input-group-append">
-                  <div
-                    className="input-group-text"
+                  <div className="clear-input" onClick={this.handleClear}>
+                    <i className="fa fa-times-circle" />
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
                     onClick={this.requestLocation}
                   >
-                    <LocationSvg />
-                  </div>
+                    <i className="fa fa-location-arrow" />
+                  </button>
                 </div>
               </div>
               <label htmlFor="radiusInput">Search radius</label>
@@ -240,7 +250,7 @@ class MainPage extends React.Component<any, IMainPageState> {
                 numLots={carpark.availableLots}
                 location={{
                   lat: parseFloat(carpark.location.split(" ")[0]),
-                  lng: parseFloat(carpark.location.split(" ")[1])
+                  lng: parseFloat(carpark.location.split(" ")[1]),
                 }}
               />
             ))}
