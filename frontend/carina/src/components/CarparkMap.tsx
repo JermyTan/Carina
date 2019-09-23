@@ -1,5 +1,7 @@
-import React, { Component } from "react";
+import React, { Component, useEffect } from "react";
 import { Map, GoogleApiWrapper, Marker, Circle } from "google-maps-react";
+// @ts-ignore
+import MarkerClusterer from "@google/markerclustererplus";
 
 import CurrLocationSvg from "../svgs/curr-location.svg";
 
@@ -33,10 +35,8 @@ class CarparkMap extends Component<ICarparkMapProps, any> {
         fullscreenControl={false}
         gestureHandling="auto"
       >
+        <MarkerCluster markers={this.props.markers} />
         <Marker position={this.props.location} icon={CurrLocationSvg} />
-        {this.props.markers.map((marker: any, index: number) => (
-          <Marker key={index} position={marker} />
-        ))}
         <Circle
           radius={this.props.radius}
           center={this.props.location}
@@ -50,6 +50,40 @@ class CarparkMap extends Component<ICarparkMapProps, any> {
     );
   }
 }
+
+const MarkerCluster: React.FunctionComponent<any> = props => {
+  const { map, google, markers } = props;
+
+  // This hook works like ComponentWillMount
+  // The  hook isn't really needed, this whole thing worked without it,
+  // I added the hook so that I could implement a cleanup function
+  useEffect(() => {
+    if (map && markers) {
+      const mapMarkers = markers.map((position: any) => {
+        const entry = new google.maps.Marker({
+          position: {
+            lat: parseFloat(position.lat),
+            lng: parseFloat(position.lng),
+          },
+          map: map,
+        });
+
+        return entry;
+      });
+
+      const clusterer = new MarkerClusterer(map, mapMarkers);
+
+      // Cleanup function. Note, this is only returned if we create the markers
+      return () => {
+        console.log("Cleaning up markers");
+        clusterer.clearMarkers();
+      };
+    }
+  }, [map, google, markers]);
+
+  // Do we need to render anything??
+  return null;
+};
 
 export default GoogleApiWrapper({
   // NOTE: you must have a valid google map API key in your environmental variables
