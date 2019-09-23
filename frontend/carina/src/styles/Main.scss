@@ -1,9 +1,18 @@
-.header-login {
+.header {
   margin-bottom: 0.5em;
+  font-size: 0.75em;
+
+  .header-login {
+    display: flex;
+    align-items: center;
+
+    .displayName {
+      margin-left: 1em;
+    }
+  }
 
   .button {
     border-radius: 0.25em;
-    font-size: 0.75em;
   }
 }
 
@@ -43,6 +52,16 @@
 }
 
 .carparks-header {
-  font-weight: bold;
-  font-size: 1.5em;
+  display: flex;
+  align-items: flex-start;
+
+  .label {
+    font-weight: bold;
+    font-size: 1.5em;
+  }
+
+  .toggle-favourite {
+    border-radius: 0.25em;
+    margin-left: auto;
+  }
 }

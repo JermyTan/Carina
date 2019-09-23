@@ -46,6 +46,9 @@ interface IMainPageState {
 
   user: any;
 
+  showFavourites: boolean;
+  favouritedCarparks: Carpark[];
+
   // TODO: Move this to backend so we don't have to filter in frontend
   filteredCarparks: Carpark[];
   markers: Location[];
@@ -66,7 +69,10 @@ class MainPage extends React.Component<any, IMainPageState> {
 
       user: null,
 
+      showFavourites: false,
+
       carparks: [],
+      favouritedCarparks: [],
       filteredCarparks: [],
       markers: []
     };
@@ -77,6 +83,7 @@ class MainPage extends React.Component<any, IMainPageState> {
     this.requestLocation = this.requestLocation.bind(this);
     this.login = this.login.bind(this);
     this.logout = this.logout.bind(this);
+    this.toggleFavourite = this.toggleFavourite.bind(this);
   }
 
   componentDidMount() {
@@ -200,7 +207,8 @@ class MainPage extends React.Component<any, IMainPageState> {
 
   logout() {
     auth.signOut().then(() => {
-      this.setState({ user: null });
+      this.setState({ user: null, showFavourites: false });
+      console.log("signed out");
     });
   }
 
@@ -208,24 +216,81 @@ class MainPage extends React.Component<any, IMainPageState> {
     auth.signInWithPopup(provider).then(result => {
       const user = result.user;
       this.setState({ user });
+      console.log(user);
     });
+  }
+
+  renderLoginButton() {
+    if (this.state.user) {
+      return (
+        <div className="header-login">
+          <button className="button" onClick={this.logout}>
+            Log Out
+          </button>
+          <div className="displayName">
+            You are currently signed in as {this.state.user.displayName}.
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <button className="button" onClick={this.login}>
+          Log In
+        </button>
+      );
+    }
+  }
+
+  toggleFavourite() {
+    this.retrieveFavouritedCarparks();
+    this.setState({ showFavourites: !this.state.showFavourites });
+  }
+
+  retrieveFavouritedCarparks() {
+    const { currentUser } = firebase.auth();
+    if (currentUser) {
+      firebase
+        .database()
+        .ref(`users/${currentUser.uid}/carparks`)
+        .on("value", data => {
+          const carparks = data.val();
+          const favouritedCarparks = [];
+          if (carparks) {
+            const keys = Object.keys(carparks);
+            for (let i = 0; i < keys.length; i++) {
+              let key = keys[i];
+              favouritedCarparks.push(carparks[key]);
+            }
+          }
+          this.setState({ favouritedCarparks });
+        });
+    }
+  }
+
+  renderCarparks(carparks: Carpark[]) {
+    return carparks.map(carpark => (
+      <CarparkInfo
+        key={carpark._id}
+        carpark={carpark}
+        id={carpark._id}
+        address={carpark.development}
+        subAddress={carpark.area}
+        numLots={carpark.availableLots}
+        location={{
+          lat: parseFloat(carpark.location.split(" ")[0]),
+          lng: parseFloat(carpark.location.split(" ")[1])
+        }}
+        showFavourite={this.state.user != null}
+        isFavourited={false}
+      />
+    ));
   }
 
   render() {
     return (
       <div className="row no-gutters">
         <div className="col-lg-7 left-col">
-          <div className="header-login">
-            {this.state.user ? (
-              <button className="button" onClick={this.logout}>
-                Log Out
-              </button>
-            ) : (
-              <button className="button" onClick={this.login}>
-                Log In
-              </button>
-            )}
-          </div>
+          <div className="header">{this.renderLoginButton()}</div>
           {/* Start of form */}
           <form>
             <div className="form-group">
@@ -266,24 +331,26 @@ class MainPage extends React.Component<any, IMainPageState> {
           {/* End of form */}
 
           <section className="carparks-header">
-            {this.state.filteredCarparks.length} carparks within radius
+            {!this.state.showFavourites && (
+              <div className="label">
+                {this.state.filteredCarparks.length} carparks within radius
+              </div>
+            )}
+            {this.state.user && (
+              <button
+                className="toggle-favourite"
+                onClick={this.toggleFavourite}
+              >
+                {this.state.showFavourites ? "Cancel" : "Show favourites"}
+              </button>
+            )}
           </section>
           <div className="carparks">
-            {this.state.filteredCarparks.map(carpark => (
-              <CarparkInfo
-                key={carpark._id}
-                id={carpark._id}
-                address={carpark.development}
-                subAddress={carpark.area}
-                numLots={carpark.availableLots}
-                location={{
-                  lat: parseFloat(carpark.location.split(" ")[0]),
-                  lng: parseFloat(carpark.location.split(" ")[1])
-                }}
-                showFavourite={this.state.user != null}
-                isFavourited={false}
-              />
-            ))}
+            {this.renderCarparks(
+              this.state.showFavourites
+                ? this.state.favouritedCarparks
+                : this.state.filteredCarparks
+            )}
           </div>
         </div>
         <div className="map-wrapper col-lg-5">

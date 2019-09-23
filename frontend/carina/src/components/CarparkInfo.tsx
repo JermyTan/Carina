@@ -9,12 +9,24 @@ import star from "../svgs/favourite.svg";
 import starFilled from "../svgs/favourited.svg";
 import HistogramChart, { HistogramData } from "./HistogramChart";
 
+type Carpark = {
+  agency: string;
+  area: string;
+  availableLots: string;
+  carparkID: string;
+  development: string;
+  location: string;
+  lotType: string;
+  _id: string;
+};
+
 interface ICarparkInfoState {
   isExpanded: boolean;
   isFavourited: boolean;
 }
 
 interface ICarparkInfoProps {
+  carpark: Carpark;
   id: string;
   location: {
     lat: number;
@@ -60,36 +72,37 @@ class CarparkInfo extends React.Component<
   }
 
   addToFavourites() {
-    firebase
-      .database()
-      .ref(`carparks/${this.props.id}`)
-      .set({
-        address: this.props.address,
-        subAdress: this.props.subAddress,
-        location: this.props.location,
-        numLots: this.props.numLots
-      })
-      .then(() => {
-        console.log("Added to favourites");
-        this.setState({ isFavourited: !this.state.isFavourited });
-      })
-      .catch(() => {
-        console.log("Error while adding to favourites");
-      });
+    const { currentUser } = firebase.auth();
+    if (currentUser) {
+      firebase
+        .database()
+        .ref(`users/${currentUser.uid}/carparks/${this.props.id}`)
+        .set(this.props.carpark)
+        .then(() => {
+          console.log("Added to favourites");
+          this.setState({ isFavourited: !this.state.isFavourited });
+        })
+        .catch(() => {
+          console.log("Error while adding to favourites");
+        });
+    }
   }
 
   removeFromFavourites() {
-    firebase
-      .database()
-      .ref(`carparks/${this.props.id}`)
-      .remove()
-      .then(() => {
-        console.log("Removed from favourites");
-        this.setState({ isFavourited: !this.state.isFavourited });
-      })
-      .catch(() => {
-        console.log("Error while removing from favourites");
-      });
+    const { currentUser } = firebase.auth();
+    if (currentUser) {
+      firebase
+        .database()
+        .ref(`users/${currentUser.uid}/carparks/${this.props.id}`)
+        .remove()
+        .then(() => {
+          console.log("Removed from favourites");
+          this.setState({ isFavourited: !this.state.isFavourited });
+        })
+        .catch(() => {
+          console.log("Error while removing from favourites");
+        });
+    }
   }
 
   render() {
