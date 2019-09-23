@@ -38,25 +38,27 @@
   font-size: 1.5em;
 }
 
-.clear-input {
-  position: absolute;
-  right: 3em;
-  background: none;
-  top: 0;
-  bottom: 0;
-  color: #ccc;
-  border: none;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
+.search-bar {
+  .clear-input {
+    position: absolute;
+    right: 3em;
+    background: none;
+    top: 0;
+    bottom: 0;
+    color: #ccc;
+    border: none;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
 
-  &:hover {
-    color: rgb(126, 126, 126);
+    &:hover {
+      color: rgb(126, 126, 126);
+    }
   }
-}
 
-.google-places-autocomplete {
-  input {
-    padding-right: 2em;
+  .google-places-autocomplete {
+    input {
+      padding-right: 2em;
+    }
   }
 }

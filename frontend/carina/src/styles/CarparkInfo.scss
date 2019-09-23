@@ -30,6 +30,28 @@
       display: flex;
       justify-content: center;
       flex-direction: column;
+      align-items: flex-end;
+      text-align: end;
+
+      .lot-count {
+        font-size: 1.5em;
+        line-height: 1em;
+        margin-bottom: 0.4em;
+        font-weight: bold;
+        &.high {
+          color: #006647;
+        }
+        &.med {
+          color: #cc860c;
+        }
+        &.low {
+          color: #b50600;
+        }
+      }
+    }
+
+    .distance-info {
+      align-items: flex-end;
     }
   }
 }

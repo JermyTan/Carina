@@ -37,9 +37,7 @@ interface IMainPageState {
   };
   zoom: number;
   radius: string;
-
   address: string;
-
   carparks: Carpark[];
 
   // TODO: Move this to backend so we don't have to filter in frontend
@@ -198,7 +196,7 @@ class MainPage extends React.Component<any, IMainPageState> {
           {/* Start of form */}
           <form>
             <div className="form-group">
-              <div className="input-group mb-2">
+              <div className="input-group mb-2 search-bar">
                 <GooglePlacesAutocomplete
                   inputClassName="form-control"
                   autocompletionRequest={{

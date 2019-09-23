@@ -40,6 +40,12 @@ class CarparkInfo extends React.Component<
     this.setState({ isExpanded: !this.state.isExpanded });
   }
 
+  classifyLotCount(numLots: number) {
+    if (numLots >= 100) return "high";
+    if (numLots >= 30) return "med";
+    return "low";
+  }
+
   render() {
     const redirectionUrl = [
       GOOGLE_MAP_REDIR_URL_PREFIX,
@@ -58,7 +64,13 @@ class CarparkInfo extends React.Component<
               </h6>
             </div>
             <div className="carpark-lots">
-              <div>{this.props.numLots}</div>
+              <div
+                className={`lot-count ${this.classifyLotCount(
+                  parseInt(this.props.numLots)
+                )}`}
+              >
+                {this.props.numLots}
+              </div>
               <div className="card-subtitle text-muted">lots left</div>
             </div>
           </div>
@@ -71,10 +83,10 @@ class CarparkInfo extends React.Component<
               <span>Price breakdown</span>
             </div>
 
-            <div className="d-flex flex-column">
+            <div className="d-flex flex-column distance-info">
               <span>Dist</span>
               <span>123 m</span>
-              <a href={redirectionUrl}>
+              <a href={redirectionUrl} target="_blank">
                 <DirectionsSvg />
               </a>
             </div>
