@@ -6,6 +6,7 @@ import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import { geocodeByPlaceId, getLatLng } from "react-google-places-autocomplete";
 // @ts-ignore
 import Geocode from "react-geocode";
+import firebase, { auth, provider } from "../firebase";
 
 import CarparkMap from "../components/CarparkMap";
 import CarparkInfo from "../components/CarparkInfo";
@@ -43,6 +44,8 @@ interface IMainPageState {
 
   carparks: Carpark[];
 
+  user: any;
+
   // TODO: Move this to backend so we don't have to filter in frontend
   filteredCarparks: Carpark[];
   markers: Location[];
@@ -61,6 +64,8 @@ class MainPage extends React.Component<any, IMainPageState> {
       radius: "300",
       address: "Kent Ridge MRT Station",
 
+      user: null,
+
       carparks: [],
       filteredCarparks: [],
       markers: []
@@ -70,9 +75,17 @@ class MainPage extends React.Component<any, IMainPageState> {
     this.handleBlur = this.handleBlur.bind(this);
     this.handleSelectLocation = this.handleSelectLocation.bind(this);
     this.requestLocation = this.requestLocation.bind(this);
+    this.login = this.login.bind(this);
+    this.logout = this.logout.bind(this);
   }
 
   componentDidMount() {
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        this.setState({ user });
+      }
+    });
+
     Axios.get(
       `https://cors-anywhere.herokuapp.com/${process.env.REACT_APP_BACKEND_API}carpark-availability/`
     ).then(response => {
@@ -185,10 +198,34 @@ class MainPage extends React.Component<any, IMainPageState> {
     }
   }
 
+  logout() {
+    auth.signOut().then(() => {
+      this.setState({ user: null });
+    });
+  }
+
+  login() {
+    auth.signInWithPopup(provider).then(result => {
+      const user = result.user;
+      this.setState({ user });
+    });
+  }
+
   render() {
     return (
       <div className="row no-gutters">
         <div className="col-lg-7 left-col">
+          <div className="header-login">
+            {this.state.user ? (
+              <button className="button" onClick={this.logout}>
+                Log Out
+              </button>
+            ) : (
+              <button className="button" onClick={this.login}>
+                Log In
+              </button>
+            )}
+          </div>
           {/* Start of form */}
           <form>
             <div className="form-group">
@@ -235,6 +272,7 @@ class MainPage extends React.Component<any, IMainPageState> {
             {this.state.filteredCarparks.map(carpark => (
               <CarparkInfo
                 key={carpark._id}
+                id={carpark._id}
                 address={carpark.development}
                 subAddress={carpark.area}
                 numLots={carpark.availableLots}
@@ -242,6 +280,8 @@ class MainPage extends React.Component<any, IMainPageState> {
                   lat: parseFloat(carpark.location.split(" ")[0]),
                   lng: parseFloat(carpark.location.split(" ")[1])
                 }}
+                showFavourite={this.state.user != null}
+                isFavourited={false}
               />
             ))}
           </div>

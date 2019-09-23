@@ -1,5 +1,6 @@
 import React from "react";
 
+import firebase from "../firebase";
 import "styles/CarparkInfo.scss";
 import ExpandMoreSvg from "./svgrs/ExpandMoreSvg";
 import ExpandLessSvg from "./svgrs/ExpandLessSvg";
@@ -14,6 +15,7 @@ interface ICarparkInfoState {
 }
 
 interface ICarparkInfoProps {
+  id: string;
   location: {
     lat: number;
     lng: number;
@@ -21,6 +23,8 @@ interface ICarparkInfoProps {
   address: string;
   subAddress: string;
   numLots: string;
+  showFavourite: boolean;
+  isFavourited: boolean;
 }
 
 const GOOGLE_MAP_REDIR_URL_PREFIX =
@@ -34,7 +38,7 @@ class CarparkInfo extends React.Component<
     super(props);
     this.state = {
       isExpanded: false,
-      isFavourited: false
+      isFavourited: this.props.isFavourited
     };
 
     this.handleExpand = this.handleExpand.bind(this);
@@ -46,7 +50,46 @@ class CarparkInfo extends React.Component<
   }
 
   handleFavourite() {
-    this.setState({ isFavourited: !this.state.isFavourited });
+    if (!this.state.isFavourited) {
+      //Add carpark to firebase
+      this.addToFavourites();
+    } else {
+      //Remove carpark from firebase
+      this.removeFromFavourites();
+    }
+  }
+
+  addToFavourites() {
+    firebase
+      .database()
+      .ref(`carparks/${this.props.id}`)
+      .set({
+        address: this.props.address,
+        subAdress: this.props.subAddress,
+        location: this.props.location,
+        numLots: this.props.numLots
+      })
+      .then(() => {
+        console.log("Added to favourites");
+        this.setState({ isFavourited: !this.state.isFavourited });
+      })
+      .catch(() => {
+        console.log("Error while adding to favourites");
+      });
+  }
+
+  removeFromFavourites() {
+    firebase
+      .database()
+      .ref(`carparks/${this.props.id}`)
+      .remove()
+      .then(() => {
+        console.log("Removed from favourites");
+        this.setState({ isFavourited: !this.state.isFavourited });
+      })
+      .catch(() => {
+        console.log("Error while removing from favourites");
+      });
   }
 
   render() {
@@ -66,18 +109,15 @@ class CarparkInfo extends React.Component<
                 {this.props.subAddress}
               </h6>
             </div>
-
-            <div className="favourite">
-              <img
-                className="favourite-icon"
-                src={this.state.isFavourited ? starFilled : star}
-                onClick={this.handleFavourite}
-              />
-              <div className="label">
-                {this.state.isFavourited ? "Favourited" : "Favourite"}
+            {this.props.showFavourite && (
+              <div className="favourite ">
+                <img
+                  className="favourite-icon"
+                  src={this.state.isFavourited ? starFilled : star}
+                  onClick={this.handleFavourite}
+                />
               </div>
-            </div>
-
+            )}
             <div className="carpark-lots">
               <div>{this.props.numLots}</div>
               <div className="card-subtitle text-muted">lots left</div>
