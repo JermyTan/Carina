@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@google/markerclustererplus": "^2.1.11",
     "@nivo/bar": "^0.59.2",
     "@types/google-maps-react": "^2.0.1",
     "@types/jest": "24.0.18",

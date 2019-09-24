@@ -1,16 +1,17 @@
 import React from "react";
 import Axios from "axios";
-// @ts-ignore
-import GooglePlacesAutocomplete from "react-google-places-autocomplete";
-// @ts-ignore
-import { geocodeByPlaceId, getLatLng } from "react-google-places-autocomplete";
+import GooglePlacesAutocomplete, {
+  geocodeByPlaceId,
+  getLatLng
+  // @ts-ignore
+} from "react-google-places-autocomplete";
 // @ts-ignore
 import Geocode from "react-geocode";
 import firebase, { auth, provider } from "../firebase";
 
 import CarparkMap from "../components/CarparkMap";
 import CarparkInfo from "../components/CarparkInfo";
-import LocationSvg from "../components/svgrs/LocationSvg";
+import { LOCAL_STORAGE_MARKERS } from "../utils/Constants";
 
 import "styles/Main.scss";
 
@@ -19,17 +20,21 @@ Geocode.setApiKey(process.env.REACT_APP_GOOGLE_MAP_API_KEY);
 type Carpark = {
   agency: string;
   area: string;
-  availableLots: string;
-  carparkID: string;
+  available_lots: string;
+  carpark_id: string;
+  day: string;
   development: string;
-  location: string;
-  lotType: string;
-  _id: string;
+  hour: number;
+  latitude: number;
+  longitude: number;
+  lot_type: string;
+  timestamp: Date;
 };
 
-type Location = {
+export type Location = {
   lat: string;
   lng: string;
+  id: string;
 };
 
 interface IMainPageState {
@@ -39,9 +44,7 @@ interface IMainPageState {
   };
   zoom: number;
   radius: string;
-
   address: string;
-
   carparks: Carpark[];
 
   user: any;
@@ -86,6 +89,7 @@ class MainPage extends React.Component<any, IMainPageState> {
     this.login = this.login.bind(this);
     this.logout = this.logout.bind(this);
     this.toggleFavourite = this.toggleFavourite.bind(this);
+    this.handleClear = this.handleClear.bind(this);
   }
 
   retrieveFavouritedCarparks() {
@@ -102,7 +106,7 @@ class MainPage extends React.Component<any, IMainPageState> {
           );
           if (favouritedCarparksIds) {
             const favouritedCarparks = this.state.carparks.filter(
-              carpark => carpark._id in favouritedCarparksIds
+              carpark => carpark.carpark_id in favouritedCarparksIds
             );
             this.setState({ favouritedCarparks, favouritedCarparksIds });
           } else {
@@ -116,30 +120,44 @@ class MainPage extends React.Component<any, IMainPageState> {
   }
 
   componentDidMount() {
-    Axios.get(
-      `https://cors-anywhere.herokuapp.com/${process.env.REACT_APP_BACKEND_API}carpark-availability/`
-    )
-      .then(response => {
-        if (response.status === 200) {
-          console.log(response.data);
-          const markers = response.data.map((carpark: Carpark) => {
-            const location = carpark.location.split(" ");
-            return { lat: location[0], lng: location[1] };
-          });
-          this.setState({
-            carparks: response.data,
-            markers
-          });
-        }
-      })
-      .then(() => {
-        auth.onAuthStateChanged(user => {
-          if (user) {
-            this.setState({ user });
-            this.retrieveFavouritedCarparks();
+    // Retrieve markers from backend and update localStorage
+    if (!localStorage.getItem(LOCAL_STORAGE_MARKERS)) {
+      Axios.get(
+        `https://cors-anywhere.herokuapp.com/${process.env.REACT_APP_LAMBDA_API}carpark-availability-latest/`
+      )
+        .then(response => {
+          if (response.status === 200) {
+            const markers = response.data.data.map((carpark: Carpark) => {
+              return {
+                lat: carpark.latitude,
+                lng: carpark.longitude,
+                id: carpark.carpark_id
+              };
+            });
+            this.setState({
+              carparks: response.data.data,
+              markers
+            });
+
+            localStorage.setItem(
+              LOCAL_STORAGE_MARKERS,
+              JSON.stringify(markers)
+            );
           }
+        })
+        .then(() => {
+          auth.onAuthStateChanged(user => {
+            if (user) {
+              this.setState({ user });
+              this.retrieveFavouritedCarparks();
+            }
+          });
         });
+    } else {
+      this.setState({
+        markers: JSON.parse(localStorage.getItem(LOCAL_STORAGE_MARKERS)!)
       });
+    }
   }
 
   updateCarparksWithinRadius(location: any, radius: string, address: string) {
@@ -151,8 +169,8 @@ class MainPage extends React.Component<any, IMainPageState> {
 
   withinRadius(carpark: Carpark, center: any, radius: number) {
     const point = {
-      lat: parseFloat(carpark.location.split(" ")[0]),
-      lng: parseFloat(carpark.location.split(" ")[1])
+      lat: carpark.latitude,
+      lng: carpark.longitude
     };
     const R = 6371e3;
     const deg2rad = (n: number) => (n * Math.PI) / 180;
@@ -196,6 +214,12 @@ class MainPage extends React.Component<any, IMainPageState> {
           description
         );
       });
+  }
+
+  handleClear() {
+    this.setState({
+      address: " "
+    });
   }
 
   requestLocation() {
@@ -281,17 +305,17 @@ class MainPage extends React.Component<any, IMainPageState> {
     console.log(carparks);
     return carparks.map(carpark => (
       <CarparkInfo
-        key={carpark._id}
-        id={carpark._id}
+        key={carpark.carpark_id}
+        id={carpark.carpark_id}
         address={carpark.development}
         subAddress={carpark.area}
-        numLots={carpark.availableLots}
+        numLots={carpark.available_lots}
         location={{
-          lat: parseFloat(carpark.location.split(" ")[0]),
-          lng: parseFloat(carpark.location.split(" ")[1])
+          lat: carpark.latitude,
+          lng: carpark.longitude
         }}
         showFavourite={this.state.user != null}
-        isFavourited={carpark._id in this.state.favouritedCarparksIds}
+        isFavourited={carpark.carpark_id in this.state.favouritedCarparksIds}
       />
     ));
   }
@@ -304,7 +328,7 @@ class MainPage extends React.Component<any, IMainPageState> {
           {/* Start of form */}
           <form>
             <div className="form-group">
-              <div className="input-group mb-2">
+              <div className="input-group mb-2 search-bar">
                 <GooglePlacesAutocomplete
                   inputClassName="form-control"
                   autocompletionRequest={{
@@ -314,12 +338,16 @@ class MainPage extends React.Component<any, IMainPageState> {
                   onSelect={this.handleSelectLocation}
                 />
                 <div className="input-group-append">
-                  <div
-                    className="input-group-text"
+                  <div className="clear-input" onClick={this.handleClear}>
+                    <i className="fa fa-times-circle" />
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
                     onClick={this.requestLocation}
                   >
-                    <LocationSvg />
-                  </div>
+                    <i className="fa fa-location-arrow" />
+                  </button>
                 </div>
               </div>
               <label htmlFor="radiusInput">Search radius</label>

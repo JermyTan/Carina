@@ -1,0 +1,13 @@
+[Unit]
+Description=Carina
+After=syslog.target
+
+[Service]
+User=nwjbrandon
+ExecStart=/home/ubuntu/App-0.0.1-SNAPSHOT.jar
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target
+
+
