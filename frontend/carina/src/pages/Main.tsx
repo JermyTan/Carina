@@ -10,6 +10,7 @@ import Geocode from "react-geocode";
 
 import CarparkMap from "../components/CarparkMap";
 import CarparkInfo from "../components/CarparkInfo";
+import { LOCAL_STORAGE_MARKERS } from "../utils/Contants";
 
 import "styles/Main.scss";
 
@@ -29,9 +30,10 @@ type Carpark = {
   timestamp: Date;
 };
 
-type Location = {
+export type Location = {
   lat: string;
   lng: string;
+  id: string;
 };
 
 interface IMainPageState {
@@ -75,20 +77,32 @@ class MainPage extends React.Component<any, IMainPageState> {
   }
 
   componentDidMount() {
-    Axios.get(
-      `https://cors-anywhere.herokuapp.com/${process.env.REACT_APP_LAMBDA_API}carpark-availability-latest/`
-    ).then(response => {
-      if (response.status === 200) {
-        console.log("data", response.data);
-        const markers = response.data.data.map((carpark: Carpark) => {
-          return { lat: carpark.latitude, lng: carpark.longitude };
-        });
-        this.setState({
-          carparks: response.data.data,
-          markers,
-        });
-      }
-    });
+    // Retrieve markers from backend and update localStorage
+    if (!localStorage.getItem(LOCAL_STORAGE_MARKERS)) {
+      Axios.get(
+        `https://cors-anywhere.herokuapp.com/${process.env.REACT_APP_LAMBDA_API}carpark-availability-latest/`
+      ).then(response => {
+        if (response.status === 200) {
+          const markers = response.data.data.map((carpark: Carpark) => {
+            return {
+              lat: carpark.latitude,
+              lng: carpark.longitude,
+              id: carpark.carpark_id,
+            };
+          });
+          this.setState({
+            carparks: response.data.data,
+            markers,
+          });
+
+          localStorage.setItem(LOCAL_STORAGE_MARKERS, JSON.stringify(markers));
+        }
+      });
+    } else {
+      this.setState({
+        markers: JSON.parse(localStorage.getItem(LOCAL_STORAGE_MARKERS)!),
+      });
+    }
   }
 
   updateCarparksWithinRadius(location: any, radius: string, address: string) {

@@ -1,9 +1,16 @@
 import React, { Component, useEffect } from "react";
-import { Map, GoogleApiWrapper, Marker, Circle } from "google-maps-react";
+import {
+  Map,
+  GoogleApiWrapper,
+  Marker,
+  Circle,
+  InfoWindow,
+} from "google-maps-react";
 // @ts-ignore
 import MarkerClusterer from "@google/markerclustererplus";
 
 import CurrLocationSvg from "../svgs/curr-location.svg";
+import { Location } from "../pages/Main";
 
 interface ICarparkMapProps {
   location: {
@@ -16,16 +23,49 @@ interface ICarparkMapProps {
   [x: string]: any;
 }
 
+interface ICarparkMapState {
+  showingInfoWindow: boolean;
+  activeMarker: Location | {};
+  selectedPlace: any;
+}
+
 const mapStyles = {
   width: "100%",
   height: "100%",
 };
 
-class CarparkMap extends Component<ICarparkMapProps, any> {
+class CarparkMap extends Component<ICarparkMapProps, ICarparkMapState> {
+  constructor(props: ICarparkMapProps) {
+    super(props);
+
+    this.state = {
+      showingInfoWindow: false,
+      activeMarker: {},
+      selectedPlace: {},
+    };
+  }
+
+  onMarkerClick = (props: any) => {
+    this.setState({
+      activeMarker: props.entry as Location,
+      showingInfoWindow: true,
+    });
+  };
+
+  onCloseInfoWindow = () => {
+    if (this.state.showingInfoWindow) {
+      this.setState({
+        showingInfoWindow: false,
+        activeMarker: {},
+      });
+    }
+  };
+
   render() {
     return (
       <Map
         google={this.props.google}
+        onClick={this.onCloseInfoWindow}
         zoom={16}
         style={mapStyles}
         initialCenter={this.props.location}
@@ -35,8 +75,19 @@ class CarparkMap extends Component<ICarparkMapProps, any> {
         fullscreenControl={false}
         gestureHandling="auto"
       >
-        <MarkerCluster markers={this.props.markers} />
+        <MarkerCluster
+          click={this.onMarkerClick}
+          markers={this.props.markers}
+        />
         <Marker position={this.props.location} icon={CurrLocationSvg} />
+        <InfoWindow
+          // @ts-ignore
+          marker={this.state.activeMarker}
+          visible={this.state.showingInfoWindow}
+          onClose={this.onCloseInfoWindow}
+        >
+          <div>{(this.state.activeMarker as Location).id}</div>
+        </InfoWindow>
         <Circle
           radius={this.props.radius}
           center={this.props.location}
@@ -51,21 +102,54 @@ class CarparkMap extends Component<ICarparkMapProps, any> {
   }
 }
 
+const evtNames = [
+  "click",
+  "dblclick",
+  "dragend",
+  "mousedown",
+  "mouseout",
+  "mouseover",
+  "mouseup",
+  "recenter",
+];
+
 const MarkerCluster: React.FunctionComponent<any> = props => {
   const { map, google, markers } = props;
+
+  const handleEvent = ({ event, marker, entry }: any) => {
+    if (props[event]) {
+      props[event]({
+        props: props,
+        marker: marker,
+        event: event,
+        entry: entry,
+      });
+    }
+  };
 
   // This hook works like ComponentWillMount
   // The  hook isn't really needed, this whole thing worked without it,
   // I added the hook so that I could implement a cleanup function
   useEffect(() => {
     if (map && markers) {
-      const mapMarkers = markers.map((position: any) => {
+      const mapMarkers = markers.map((marker: Location) => {
         const entry = new google.maps.Marker({
           position: {
-            lat: parseFloat(position.lat),
-            lng: parseFloat(position.lng),
+            lat: parseFloat(marker.lat),
+            lng: parseFloat(marker.lng),
           },
           map: map,
+          id: marker.id,
+        });
+
+        evtNames.forEach(e => {
+          entry.addListener(e, () =>
+            handleEvent({
+              event: e,
+              marker: marker,
+              entry: entry,
+            })
+          );
         });
 
         return entry;
@@ -75,7 +159,6 @@ const MarkerCluster: React.FunctionComponent<any> = props => {
 
       // Cleanup function. Note, this is only returned if we create the markers
       return () => {
-        console.log("Cleaning up markers");
         clusterer.clearMarkers();
       };
     }
