@@ -12,6 +12,8 @@ import MarkerClusterer from "@google/markerclustererplus";
 import CurrLocationSvg from "../svgs/curr-location.svg";
 import { Location } from "../pages/Main";
 
+import "../styles/CarparkMap.scss";
+
 interface ICarparkMapProps {
   location: {
     lat: number;
@@ -27,6 +29,7 @@ interface ICarparkMapState {
   showingInfoWindow: boolean;
   activeMarker: Location | {};
   selectedPlace: any;
+  map: any;
 }
 
 const mapStyles = {
@@ -42,8 +45,17 @@ class CarparkMap extends Component<ICarparkMapProps, ICarparkMapState> {
       showingInfoWindow: false,
       activeMarker: {},
       selectedPlace: {},
+      map: null,
     };
   }
+
+  updateMap = (mapProps: any, map: any) => {
+    this.setState({ map });
+  };
+
+  onCenterButtonClicked = () => {
+    this.state.map.setCenter(this.props.location);
+  };
 
   onMarkerClick = (props: any) => {
     this.setState({
@@ -63,41 +75,53 @@ class CarparkMap extends Component<ICarparkMapProps, ICarparkMapState> {
 
   render() {
     return (
-      <Map
-        google={this.props.google}
-        onClick={this.onCloseInfoWindow}
-        zoom={16}
-        style={mapStyles}
-        initialCenter={this.props.location}
-        center={this.props.location}
-        streetViewControl={false}
-        mapTypeControl={false}
-        fullscreenControl={false}
-        gestureHandling="auto"
-      >
-        <MarkerCluster
-          click={this.onMarkerClick}
-          markers={this.props.markers}
-        />
-        <Marker position={this.props.location} icon={CurrLocationSvg} />
-        <InfoWindow
-          // @ts-ignore
-          marker={this.state.activeMarker}
-          visible={this.state.showingInfoWindow}
-          onClose={this.onCloseInfoWindow}
+      <>
+        <button
+          onClick={this.onCenterButtonClicked}
+          title="Center"
+          aria-label="Center"
+          type="button"
+          className="center-map-btn"
         >
-          <div>{(this.state.activeMarker as Location).id}</div>
-        </InfoWindow>
-        <Circle
-          radius={this.props.radius}
+          <i className="fa fa-location-arrow"></i>
+        </button>
+        <Map
+          onReady={this.updateMap}
+          google={this.props.google}
+          onClick={this.onCloseInfoWindow}
+          zoom={16}
+          style={mapStyles}
+          initialCenter={this.props.location}
           center={this.props.location}
-          strokeColor="transparent"
-          strokeOpacity={0}
-          strokeWeight={5}
-          fillColor="#50C878"
-          fillOpacity={0.2}
-        />
-      </Map>
+          streetViewControl={false}
+          mapTypeControl={false}
+          fullscreenControl={false}
+          gestureHandling="auto"
+        >
+          <MarkerCluster
+            click={this.onMarkerClick}
+            markers={this.props.markers}
+          />
+          <Marker position={this.props.location} icon={CurrLocationSvg} />
+          <InfoWindow
+            // @ts-ignore
+            marker={this.state.activeMarker}
+            visible={this.state.showingInfoWindow}
+            onClose={this.onCloseInfoWindow}
+          >
+            <div>{(this.state.activeMarker as Location).id}</div>
+          </InfoWindow>
+          <Circle
+            radius={this.props.radius}
+            center={this.props.location}
+            strokeColor="transparent"
+            strokeOpacity={0}
+            strokeWeight={5}
+            fillColor="#50C878"
+            fillOpacity={0.2}
+          />
+        </Map>
+      </>
     );
   }
 }
