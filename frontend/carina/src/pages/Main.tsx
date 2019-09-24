@@ -1,15 +1,16 @@
 import React from "react";
 import Axios from "axios";
-// @ts-ignore
-import GooglePlacesAutocomplete from "react-google-places-autocomplete";
-// @ts-ignore
-import { geocodeByPlaceId, getLatLng } from "react-google-places-autocomplete";
+import GooglePlacesAutocomplete, {
+  geocodeByPlaceId,
+  getLatLng,
+  // @ts-ignore
+} from "react-google-places-autocomplete";
 // @ts-ignore
 import Geocode from "react-geocode";
 
 import CarparkMap from "../components/CarparkMap";
 import CarparkInfo from "../components/CarparkInfo";
-import LocationSvg from "../components/svgrs/LocationSvg";
+import { LOCAL_STORAGE_MARKERS } from "../utils/Contants";
 
 import "styles/Main.scss";
 
@@ -18,17 +19,21 @@ Geocode.setApiKey(process.env.REACT_APP_GOOGLE_MAP_API_KEY);
 type Carpark = {
   agency: string;
   area: string;
-  availableLots: string;
-  carparkID: string;
+  available_lots: string;
+  carpark_id: string;
+  day: string;
   development: string;
-  location: string;
-  lotType: string;
-  _id: string;
+  hour: number;
+  latitude: number;
+  longitude: number;
+  lot_type: string;
+  timestamp: Date;
 };
 
-type Location = {
+export type Location = {
   lat: string;
   lng: string;
+  id: string;
 };
 
 interface IMainPageState {
@@ -38,9 +43,7 @@ interface IMainPageState {
   };
   zoom: number;
   radius: string;
-
   address: string;
-
   carparks: Carpark[];
 
   // TODO: Move this to backend so we don't have to filter in frontend
@@ -55,7 +58,7 @@ class MainPage extends React.Component<any, IMainPageState> {
     this.state = {
       location: {
         lat: 1.2935861,
-        lng: 103.7844513
+        lng: 103.7844513,
       },
       zoom: 16,
       radius: "300",
@@ -63,31 +66,43 @@ class MainPage extends React.Component<any, IMainPageState> {
 
       carparks: [],
       filteredCarparks: [],
-      markers: []
+      markers: [],
     };
 
     this.handleRadiusChange = this.handleRadiusChange.bind(this);
     this.handleBlur = this.handleBlur.bind(this);
     this.handleSelectLocation = this.handleSelectLocation.bind(this);
     this.requestLocation = this.requestLocation.bind(this);
+    this.handleClear = this.handleClear.bind(this);
   }
 
   componentDidMount() {
-    Axios.get(
-      `https://cors-anywhere.herokuapp.com/${process.env.REACT_APP_BACKEND_API}carpark-availability/`
-    ).then(response => {
-      if (response.status === 200) {
-        console.log(response.data);
-        const markers = response.data.map((carpark: Carpark) => {
-          const location = carpark.location.split(" ");
-          return { lat: location[0], lng: location[1] };
-        });
-        this.setState({
-          carparks: response.data,
-          markers
-        });
-      }
-    });
+    // Retrieve markers from backend and update localStorage
+    if (!localStorage.getItem(LOCAL_STORAGE_MARKERS)) {
+      Axios.get(
+        `https://cors-anywhere.herokuapp.com/${process.env.REACT_APP_LAMBDA_API}carpark-availability-latest/`
+      ).then(response => {
+        if (response.status === 200) {
+          const markers = response.data.data.map((carpark: Carpark) => {
+            return {
+              lat: carpark.latitude,
+              lng: carpark.longitude,
+              id: carpark.carpark_id,
+            };
+          });
+          this.setState({
+            carparks: response.data.data,
+            markers,
+          });
+
+          localStorage.setItem(LOCAL_STORAGE_MARKERS, JSON.stringify(markers));
+        }
+      });
+    } else {
+      this.setState({
+        markers: JSON.parse(localStorage.getItem(LOCAL_STORAGE_MARKERS)!),
+      });
+    }
   }
 
   updateCarparksWithinRadius(location: any, radius: string, address: string) {
@@ -99,8 +114,8 @@ class MainPage extends React.Component<any, IMainPageState> {
 
   withinRadius(carpark: Carpark, center: any, radius: number) {
     const point = {
-      lat: parseFloat(carpark.location.split(" ")[0]),
-      lng: parseFloat(carpark.location.split(" ")[1])
+      lat: carpark.latitude,
+      lng: carpark.longitude,
     };
     const R = 6371e3;
     const deg2rad = (n: number) => (n * Math.PI) / 180;
@@ -129,7 +144,7 @@ class MainPage extends React.Component<any, IMainPageState> {
 
   handleBlur() {
     this.setState({
-      radius: this.state.radius === "" ? "0" : this.state.radius
+      radius: this.state.radius === "" ? "0" : this.state.radius,
     });
   }
 
@@ -146,13 +161,19 @@ class MainPage extends React.Component<any, IMainPageState> {
       });
   }
 
+  handleClear() {
+    this.setState({
+      address: " ",
+    });
+  }
+
   requestLocation() {
     if (navigator.geolocation) {
       const updatePosition = (position: Position) => {
         const { latitude, longitude } = position.coords;
         const location = {
           lat: latitude,
-          lng: longitude
+          lng: longitude,
         };
         Geocode.fromLatLng(latitude, longitude).then((response: any) => {
           const address = response.results[0].formatted_address;
@@ -192,22 +213,26 @@ class MainPage extends React.Component<any, IMainPageState> {
           {/* Start of form */}
           <form>
             <div className="form-group">
-              <div className="input-group mb-2">
+              <div className="input-group mb-2 search-bar">
                 <GooglePlacesAutocomplete
                   inputClassName="form-control"
                   autocompletionRequest={{
-                    componentRestrictions: { country: "sg" }
+                    componentRestrictions: { country: "sg" },
                   }}
                   initialValue={this.state.address}
                   onSelect={this.handleSelectLocation}
                 />
                 <div className="input-group-append">
-                  <div
-                    className="input-group-text"
+                  <div className="clear-input" onClick={this.handleClear}>
+                    <i className="fa fa-times-circle" />
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
                     onClick={this.requestLocation}
                   >
-                    <LocationSvg />
-                  </div>
+                    <i className="fa fa-location-arrow" />
+                  </button>
                 </div>
               </div>
               <label htmlFor="radiusInput">Search radius</label>
@@ -234,13 +259,13 @@ class MainPage extends React.Component<any, IMainPageState> {
           <div className="carparks">
             {this.state.filteredCarparks.map(carpark => (
               <CarparkInfo
-                key={carpark._id}
+                key={carpark.carpark_id}
                 address={carpark.development}
                 subAddress={carpark.area}
-                numLots={carpark.availableLots}
+                numLots={carpark.available_lots}
                 location={{
-                  lat: parseFloat(carpark.location.split(" ")[0]),
-                  lng: parseFloat(carpark.location.split(" ")[1])
+                  lat: carpark.latitude,
+                  lng: carpark.longitude,
                 }}
               />
             ))}
