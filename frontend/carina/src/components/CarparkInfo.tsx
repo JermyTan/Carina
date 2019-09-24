@@ -86,7 +86,11 @@ class CarparkInfo extends React.Component<
             <div className="d-flex flex-column distance-info">
               <span>Dist</span>
               <span>123 m</span>
-              <a href={redirectionUrl} target="_blank">
+              <a
+                href={redirectionUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <DirectionsSvg />
               </a>
             </div>

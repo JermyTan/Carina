@@ -1,9 +1,10 @@
 import React from "react";
 import Axios from "axios";
-// @ts-ignore
-import GooglePlacesAutocomplete from "react-google-places-autocomplete";
-// @ts-ignore
-import { geocodeByPlaceId, getLatLng } from "react-google-places-autocomplete";
+import GooglePlacesAutocomplete, {
+  geocodeByPlaceId,
+  getLatLng,
+  // @ts-ignore
+} from "react-google-places-autocomplete";
 // @ts-ignore
 import Geocode from "react-geocode";
 
@@ -17,12 +18,15 @@ Geocode.setApiKey(process.env.REACT_APP_GOOGLE_MAP_API_KEY);
 type Carpark = {
   agency: string;
   area: string;
-  availableLots: string;
-  carparkID: string;
+  available_lots: string;
+  carpark_id: string;
+  day: string;
   development: string;
-  location: string;
-  lotType: string;
-  _id: string;
+  hour: number;
+  latitude: number;
+  longitude: number;
+  lot_type: string;
+  timestamp: Date;
 };
 
 type Location = {
@@ -72,16 +76,15 @@ class MainPage extends React.Component<any, IMainPageState> {
 
   componentDidMount() {
     Axios.get(
-      `https://cors-anywhere.herokuapp.com/${process.env.REACT_APP_BACKEND_API}carpark-availability/`
+      `https://cors-anywhere.herokuapp.com/${process.env.REACT_APP_LAMBDA_API}carpark-availability-latest/`
     ).then(response => {
       if (response.status === 200) {
-        console.log(response.data);
-        const markers = response.data.map((carpark: Carpark) => {
-          const location = carpark.location.split(" ");
-          return { lat: location[0], lng: location[1] };
+        console.log("data", response.data);
+        const markers = response.data.data.map((carpark: Carpark) => {
+          return { lat: carpark.latitude, lng: carpark.longitude };
         });
         this.setState({
-          carparks: response.data,
+          carparks: response.data.data,
           markers,
         });
       }
@@ -97,8 +100,8 @@ class MainPage extends React.Component<any, IMainPageState> {
 
   withinRadius(carpark: Carpark, center: any, radius: number) {
     const point = {
-      lat: parseFloat(carpark.location.split(" ")[0]),
-      lng: parseFloat(carpark.location.split(" ")[1]),
+      lat: carpark.latitude,
+      lng: carpark.longitude,
     };
     const R = 6371e3;
     const deg2rad = (n: number) => (n * Math.PI) / 180;
@@ -242,13 +245,13 @@ class MainPage extends React.Component<any, IMainPageState> {
           <div className="carparks">
             {this.state.filteredCarparks.map(carpark => (
               <CarparkInfo
-                key={carpark._id}
+                key={carpark.carpark_id}
                 address={carpark.development}
                 subAddress={carpark.area}
-                numLots={carpark.availableLots}
+                numLots={carpark.available_lots}
                 location={{
-                  lat: parseFloat(carpark.location.split(" ")[0]),
-                  lng: parseFloat(carpark.location.split(" ")[1]),
+                  lat: carpark.latitude,
+                  lng: carpark.longitude,
                 }}
               />
             ))}
