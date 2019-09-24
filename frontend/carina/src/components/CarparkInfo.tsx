@@ -1,6 +1,6 @@
 import React from "react";
 
-import firebase from "../firebase";
+import firebase, { auth } from "../firebase";
 import "styles/CarparkInfo.scss";
 import ExpandMoreSvg from "./svgrs/ExpandMoreSvg";
 import ExpandLessSvg from "./svgrs/ExpandLessSvg";
@@ -9,24 +9,12 @@ import star from "../svgs/favourite.svg";
 import starFilled from "../svgs/favourited.svg";
 import HistogramChart, { HistogramData } from "./HistogramChart";
 
-type Carpark = {
-  agency: string;
-  area: string;
-  availableLots: string;
-  carparkID: string;
-  development: string;
-  location: string;
-  lotType: string;
-  _id: string;
-};
-
 interface ICarparkInfoState {
   isExpanded: boolean;
   isFavourited: boolean;
 }
 
 interface ICarparkInfoProps {
-  carpark: Carpark;
   id: string;
   location: {
     lat: number;
@@ -72,12 +60,12 @@ class CarparkInfo extends React.Component<
   }
 
   addToFavourites() {
-    const { currentUser } = firebase.auth();
+    const { currentUser } = auth;
     if (currentUser) {
       firebase
         .database()
         .ref(`users/${currentUser.uid}/carparks/${this.props.id}`)
-        .set(this.props.carpark)
+        .set(true)
         .then(() => {
           console.log("Added to favourites");
           this.setState({ isFavourited: !this.state.isFavourited });
@@ -89,7 +77,7 @@ class CarparkInfo extends React.Component<
   }
 
   removeFromFavourites() {
-    const { currentUser } = firebase.auth();
+    const { currentUser } = auth;
     if (currentUser) {
       firebase
         .database()

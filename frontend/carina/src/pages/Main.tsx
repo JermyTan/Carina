@@ -48,6 +48,7 @@ interface IMainPageState {
 
   showFavourites: boolean;
   favouritedCarparks: Carpark[];
+  favouritedCarparksIds: object;
 
   // TODO: Move this to backend so we don't have to filter in frontend
   filteredCarparks: Carpark[];
@@ -73,6 +74,7 @@ class MainPage extends React.Component<any, IMainPageState> {
 
       carparks: [],
       favouritedCarparks: [],
+      favouritedCarparksIds: {},
       filteredCarparks: [],
       markers: []
     };
@@ -86,28 +88,58 @@ class MainPage extends React.Component<any, IMainPageState> {
     this.toggleFavourite = this.toggleFavourite.bind(this);
   }
 
-  componentDidMount() {
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        this.setState({ user });
-      }
-    });
+  retrieveFavouritedCarparks() {
+    const { currentUser } = auth;
+    if (currentUser) {
+      firebase
+        .database()
+        .ref(`users/${currentUser.uid}/carparks`)
+        .on("value", data => {
+          const favouritedCarparksIds = data.val();
+          console.log(
+            "List of favourited carpark ids: ",
+            favouritedCarparksIds
+          );
+          if (favouritedCarparksIds) {
+            const favouritedCarparks = this.state.carparks.filter(
+              carpark => carpark._id in favouritedCarparksIds
+            );
+            this.setState({ favouritedCarparks, favouritedCarparksIds });
+          } else {
+            this.setState({
+              favouritedCarparks: [],
+              favouritedCarparksIds: {}
+            });
+          }
+        });
+    }
+  }
 
+  componentDidMount() {
     Axios.get(
       `https://cors-anywhere.herokuapp.com/${process.env.REACT_APP_BACKEND_API}carpark-availability/`
-    ).then(response => {
-      if (response.status === 200) {
-        console.log(response.data);
-        const markers = response.data.map((carpark: Carpark) => {
-          const location = carpark.location.split(" ");
-          return { lat: location[0], lng: location[1] };
+    )
+      .then(response => {
+        if (response.status === 200) {
+          console.log(response.data);
+          const markers = response.data.map((carpark: Carpark) => {
+            const location = carpark.location.split(" ");
+            return { lat: location[0], lng: location[1] };
+          });
+          this.setState({
+            carparks: response.data,
+            markers
+          });
+        }
+      })
+      .then(() => {
+        auth.onAuthStateChanged(user => {
+          if (user) {
+            this.setState({ user });
+            this.retrieveFavouritedCarparks();
+          }
         });
-        this.setState({
-          carparks: response.data,
-          markers
-        });
-      }
-    });
+      });
   }
 
   updateCarparksWithinRadius(location: any, radius: string, address: string) {
@@ -242,36 +274,14 @@ class MainPage extends React.Component<any, IMainPageState> {
   }
 
   toggleFavourite() {
-    this.retrieveFavouritedCarparks();
     this.setState({ showFavourites: !this.state.showFavourites });
   }
 
-  retrieveFavouritedCarparks() {
-    const { currentUser } = firebase.auth();
-    if (currentUser) {
-      firebase
-        .database()
-        .ref(`users/${currentUser.uid}/carparks`)
-        .on("value", data => {
-          const carparks = data.val();
-          const favouritedCarparks = [];
-          if (carparks) {
-            const keys = Object.keys(carparks);
-            for (let i = 0; i < keys.length; i++) {
-              let key = keys[i];
-              favouritedCarparks.push(carparks[key]);
-            }
-          }
-          this.setState({ favouritedCarparks });
-        });
-    }
-  }
-
   renderCarparks(carparks: Carpark[]) {
+    console.log(carparks);
     return carparks.map(carpark => (
       <CarparkInfo
         key={carpark._id}
-        carpark={carpark}
         id={carpark._id}
         address={carpark.development}
         subAddress={carpark.area}
@@ -281,7 +291,7 @@ class MainPage extends React.Component<any, IMainPageState> {
           lng: parseFloat(carpark.location.split(" ")[1])
         }}
         showFavourite={this.state.user != null}
-        isFavourited={false}
+        isFavourited={carpark._id in this.state.favouritedCarparksIds}
       />
     ));
   }
