@@ -42,8 +42,12 @@ public class CarparkAvailabilityMapQueryUtility {
                     CarparkAvailabilitySqlQueryConstant.fetchQueriesSunday)
     );
 
-    public static String getMapFindAllQuery(DayOfWeekConstant day) {
-        return mapFindAllQueries.get(day);
+    public static String getMapFindAllQuery(DayOfWeekConstant day, int hour) {
+        return mapFindAllQueries.get(day) + " WHERE hour=" + hour;
+    }
+
+    public static String getMapCarparkInfoQuery(DayOfWeekConstant day, String carpark_id) {
+        return mapFindAllQueries.get(day) + " WHERE carpark_id='" + carpark_id + "'";
     }
 
     public static String getMapFetchQuery(DayOfWeekConstant day) {

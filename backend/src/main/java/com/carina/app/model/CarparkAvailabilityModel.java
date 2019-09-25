@@ -1,98 +1,64 @@
 package com.carina.app.model;
 
+import javax.persistence.EmbeddedId;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Id;
 import javax.persistence.Column;
 
 
 @MappedSuperclass
 public class CarparkAvailabilityModel {
 
-    @Id
-    @Column(name = "carpark_id")
-    private String carparkId;
-
-    @Column(name = "area")
-    private String area;
-
-    @Column(name = "development")
-    private String development;
+    @EmbeddedId
+    private CarparkAvailabilityModelId carparkAvailabilityId;
 
     @Column(name = "latitude")
-    private double latitude;
+    private String latitude;
 
     @Column(name = "longitude")
-    private double longitude;
+    private String longitude;
 
     @Column(name = "available_lots")
-    private int availableLots;
-
-    @Column(name = "lot_type")
-    private String lotType;
+    private String availableLots;
 
     @Column(name = "agency")
     private String agency;
 
     @Column(name = "timestamp")
-    private long timestamp;
+    private String timestamp;
 
     public CarparkAvailabilityModel() {
     }
 
-    public void setCarparkId(String carparkId) {
-        this.carparkId = carparkId;
+    public CarparkAvailabilityModelId getCarparkAvailabilityId() {
+        return carparkAvailabilityId;
     }
 
-    public String getCarparkId() {
-        return this.carparkId;
+    public void setCarparkAvailabilityId(CarparkAvailabilityModelId carparkAvailabilityId) {
+        this.carparkAvailabilityId = carparkAvailabilityId;
     }
 
-    public void setArea(String area) {
-        this.area = area;
-    }
-
-    public String getArea() {
-        return this.area;
-    }
-
-    public void setDevelopment(String development) {
-        this.development = development;
-    }
-
-    public String getDevelopment() {
-        return this.development;
-    }
-
-    public void setLatitude(double latitude) {
+    public void setLatitude(String latitude) {
         this.latitude = latitude;
     }
 
-    public double getLatitude() {
+    public String getLatitude() {
         return this.latitude;
     }
 
-    public void setLongitude(double longitude) {
+    public void setLongitude(String longitude) {
         this.longitude = longitude;
     }
 
-    public double getLongitude() {
+    public String getLongitude() {
         return this.longitude;
     }
 
-    public void setAvailableLots(int availableLots) {
+    public void setAvailableLots(String availableLots) {
         this.availableLots = availableLots;
     }
 
-    public int getAvailableLots() {
+    public String getAvailableLots() {
         return this.availableLots;
-    }
-
-    public void setLotType(String lotType) {
-        this.lotType = lotType;
-    }
-
-    public String getLotType() {
-        return this.lotType;
     }
 
     public void setAgency(String agency) {
@@ -103,16 +69,12 @@ public class CarparkAvailabilityModel {
         return this.agency;
     }
 
-    public void setTimestamp(long timestamp) {
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 
-    public long getTimestamp() {
+    public String getTimestamp() {
         return this.timestamp;
     }
 
-    @Override
-    public String toString() {
-        return "carpark_availability";
-    }
 }

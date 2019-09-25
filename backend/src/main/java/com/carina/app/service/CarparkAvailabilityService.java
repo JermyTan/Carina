@@ -1,11 +1,16 @@
 package com.carina.app.service;
 
+import com.carina.app.constant.CarparkAvailabilitySqlQueryConstant;
+import com.carina.app.constant.DayOfWeekConstant;
 import com.carina.app.model.CarparkAvailabilityModel;
+import com.carina.app.template.CarparkAvailabilityTemplate;
 import com.carina.app.utility.DistanceCalculationUtility;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 
 public class CarparkAvailabilityService {
+
 
     /**
      * Returns list of carparks nearest to current location at instance in time.
@@ -21,11 +26,11 @@ public class CarparkAvailabilityService {
     ) {
         ArrayList<CarparkAvailabilityModel> listOfNearestCarparkAvailabilityMondayModels = new ArrayList<>();
         for (CarparkAvailabilityModel carparkAvailabilityModel : listOfCarparkAvailabilityModels) {
-            double latitudeDestination = carparkAvailabilityModel.getLatitude();
-            double longitudeDestination = carparkAvailabilityModel.getLongitude();
+            String latitudeDestination = carparkAvailabilityModel.getLatitude();
+            String longitudeDestination = carparkAvailabilityModel.getLongitude();
             if (DistanceCalculationUtility.withinPromixity(
                     latitudeSource, longitudeSource,
-                    latitudeDestination, longitudeDestination,
+                    Double.parseDouble(latitudeDestination), Double.parseDouble(longitudeDestination),
                     radiusProximity
             )) {
                 listOfNearestCarparkAvailabilityMondayModels.add(carparkAvailabilityModel);
@@ -34,4 +39,5 @@ public class CarparkAvailabilityService {
         }
         return listOfNearestCarparkAvailabilityMondayModels;
     }
+
 }

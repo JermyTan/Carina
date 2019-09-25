@@ -1,4 +1,4 @@
-const mysql = require('mysql');
+const mysql = require('mysql2/promise');
 const axios = require('axios');
 const csv = require('csvtojson');
 const fs = require('fs');
@@ -13,8 +13,8 @@ const dbConfig = {
     database: 'lta',
 }
 
-function getConnection() {
-  return mysql.createConnection(dbConfig);
+async function getConnection() {
+  return await mysql.createConnection(dbConfig);
 }
 
 // Returns the name of the day of the week
@@ -54,29 +54,28 @@ function formatData(row) {
   } = row;
 
   const loc = Location.split(" ");
-  const latitude = _.toNumber(loc[0]);
-  const longitude = _.toNumber(loc[1]);
+  const latitude = loc[0];
+  const longitude = loc[1];
 
   const date = getDate(timestamp);
   const day = getNameOfDay(date);
-  const hour = getHourOfDay(date);
+  const hour = _.toString(getHourOfDay(date));
 
-  const available_lots = _.toInteger(AvailableLots);
+  const available_lots = AvailableLots;
 
   const hasNaN = _.isNaN(latitude) || _.isNaN(longitude) || _.isNaN(available_lots);
 
   const data = {
-    carpark_id: CarParkID + '_' + formatString(Area) + '_' + formatString(Development) + '_' + formatString(LotType) + '_' + day + '_' + hour,
+    carpark_id: CarParkID,
     area: Area,
     development: Development,
     latitude,
     longitude,
-    available_lots,
+    available_lots: AvailableLots,
     lot_type: LotType,
     agency: Agency,
     hour,
-    day,
-    timestamp: _.toInteger(timestamp)
+    timestamp
   }
 
   if (hasNaN) {
@@ -89,27 +88,17 @@ async function readData(csvFilePath) {
   return await csv().fromFile(csvFilePath);
 }
 
-function insertData(data) {
-  const connection = getConnection();
-  connection.connect();
-  const SQL_COMMAND = 'INSERT INTO carpark_availability_saturday VALUES ?';
-  const query = connection.query(SQL_COMMAND, [data], function(err, result) {
-    console.log(err);
-    console.log(result);
-  });
-  connection.end();
-}
-
 async function main() {
-  const rawData = await readData('saturday.csv');
+  const rawData = await readData('friday.csv');
   const processedData = rawData.map(function(row) {
     return formatData(row);
   }).filter(row => row !== null);
-  const uniqueData = _.uniqBy(processedData, 'carpark_id');
-  const finalData = _.map(uniqueData, data => _.toArray(data));
+  const connection = await getConnection();
+  await Promise.all(processedData.map(async (data) => {
+    const result = await connection.query('INSERT INTO carpark_availability_friday SET ?', data);
+  }));
 
-  insertData(finalData);
-  console.log(finalData);
+  await connection.end();
 
 }
 

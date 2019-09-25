@@ -1,98 +1,122 @@
 package com.carina.app.controller;
 
 import com.carina.app.model.CarparkAvailabilityModel;
-import com.carina.app.payload.CarparkAvailabilityPayload;
+import com.carina.app.payload.*;
 import com.carina.app.service.CarparkAvailabilityService;
+import com.carina.app.service.LtaDataMallGetRequestService;
 import com.carina.app.template.CarparkAvailabilityTemplate;
+import com.carina.app.utility.DistanceCalculationUtility;
 import com.carina.app.validation.DayOfWeekValidation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/public")
 public class CarparkAvailabilityController {
 
     @Autowired
     private CarparkAvailabilityTemplate carparkAvailabilityTemplate;
 
-    /**
-     * Returns response for the carparks availability at instance in time.
-     * @param day day of the week.
-     * @return list of carparks.
-     */
-    @GetMapping("/carpark-availability")
-    public CarparkAvailabilityPayload getCarparkAvailability(@RequestParam() String day) {
-        return new CarparkAvailabilityPayload(
-                carparkAvailabilityTemplate.findAll(DayOfWeekValidation.parseDayOfWeek(day))
-        );
-    }
-
-    /**
-     * Returns response for carpark given the queries for days, areas, developments, and type of lots.
-     * @param days list of days in the week.
-     * @param areas list of areas.
-     * @param developments list of developments.
-     * @param lotTypes list of type of lots.
-     * @return list of carpark availability.
-     */
-    @GetMapping("/carpark-availability/queries")
-    public CarparkAvailabilityPayload getCarparkAvailabilityByQueries(
-            @RequestParam(defaultValue = ",") Set<String> days,
-            @RequestParam(defaultValue = ",") Set<String> areas,
-            @RequestParam(defaultValue = ",") Set<String> developments,
-            @RequestParam(defaultValue = ",") Set<String> lotTypes
-    ) {
-        ArrayList<CarparkAvailabilityModel> listOfCarparkAvailabilityModels = new ArrayList<>();
-        for (String day: days) {
-            listOfCarparkAvailabilityModels.addAll(carparkAvailabilityTemplate
-                    .getCarparkAvailabilityByQueries(
-                            DayOfWeekValidation.parseDayOfWeek(day), areas, developments, lotTypes
-                    )
-            );
+    @GetMapping("/carpark-availability/latest")
+    public Collection<LtaDataMallFinalPayload> getLatestCarparks() throws IOException {
+        ArrayList<LtaDataMallValuePayload> data = LtaDataMallGetRequestService.getAllLtaDataMallValue();
+        ArrayList<LtaDataMallProcessedPayload> processedData = new ArrayList<>();
+        for (LtaDataMallValuePayload i: data) {
+            LtaDataMallProcessedPayload p = new LtaDataMallProcessedPayload();
+            p.setCarparkId(i.getCarparkId());
+            p.setArea(i.getArea());
+            p.setDevelopment(i.getDevelopment());
+            p.setLotType(i.getLotType());
+            p.setAvailableLots(i.getAvailableLots());
+            String[] loc = i.getLocation().split("\\s+");
+            if (loc.length > 1) {
+                p.setLatitude(loc[0]);
+                p.setLongitude(loc[1]);
+                processedData.add(p);
+            }
         }
-        return new CarparkAvailabilityPayload(listOfCarparkAvailabilityModels);
+
+        Map<String, LtaDataMallFinalPayload> payload = new HashMap<>();
+        for (LtaDataMallProcessedPayload p: processedData) {
+            if (payload.containsKey(p.toString())) {
+                LotTypeAndNumber lotTypeAndNumber = new LotTypeAndNumber();
+                lotTypeAndNumber.setAvailableLots(p.getAvailableLots());
+                lotTypeAndNumber.setLotType(p.getLotType());
+                payload.get(p.toString()).addLots(lotTypeAndNumber);
+            } else {
+                LtaDataMallFinalPayload a = new LtaDataMallFinalPayload();
+                a.setCarparkId(p.getCarparkId());
+                a.setArea(p.getArea());
+                a.setDevelopment(p.getDevelopment());
+                a.setLatitude(p.getLatitude());
+                a.setLongitude(p.getLongitude());
+                a.setLots(new HashSet<>());
+                payload.put(p.toString(), a);
+                LotTypeAndNumber lotTypeAndNumber = new LotTypeAndNumber();
+                lotTypeAndNumber.setAvailableLots(p.getAvailableLots());
+                lotTypeAndNumber.setLotType(p.getLotType());
+                payload.get(p.toString()).addLots(lotTypeAndNumber);
+            }
+        }
+        return payload.values();
     }
 
-    /**
-     * Returns response for the nearest carparks availability at instance in time.
-     * @param day day of week.
-     * @param latitude latitude of source.
-     * @param longitude longitude of source.
-     * @param radius radius in metres.
-     * @return list of carparks.
-     */
-    @GetMapping("/carpark-availability/nearest")
-    public CarparkAvailabilityPayload getCarparkAvailabilityNearest(
-            @RequestParam() String day,
-            @RequestParam String latitude,
-            @RequestParam String longitude,
-            @RequestParam String radius
-    ) {
-        double latitudeSource = Double.parseDouble(latitude);
-        double longitudeSource = Double.parseDouble(longitude);
-        double radiusProximity = Double.parseDouble(radius);
-        ArrayList<CarparkAvailabilityModel> listOfCarparkAvailabilityModels =
-                (ArrayList<CarparkAvailabilityModel>) carparkAvailabilityTemplate
-                        .findAll(DayOfWeekValidation.parseDayOfWeek(day));
 
-        return new CarparkAvailabilityPayload(
-                CarparkAvailabilityService.getNearestCarpark(
-                latitudeSource, longitudeSource, radiusProximity,
-                listOfCarparkAvailabilityModels
-        ));
+    @GetMapping("/carpark-availability/statistics")
+    public Map<String, Set<LotTypeAndNumberAndHour>> getCarparkStatistics(
+        @RequestParam String carpark_id,
+        @RequestParam(defaultValue = "") Set<String> lotTypes
+    ) {
+        String [] days = {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"};
+        Map<String, Set<LotTypeAndNumberAndHour>> payload = new HashMap<>();
+
+        for (String day: days) {
+            ArrayList<LtaDataMallProcessedPayload> processedData = new ArrayList<>();
+
+            CarparkAvailabilityPayload payloadByDay = new CarparkAvailabilityPayload(
+                carparkAvailabilityTemplate.getCarparkInfo(DayOfWeekValidation.parseDayOfWeek(day), carpark_id));
+
+            ArrayList<CarparkAvailabilityModel> models = (ArrayList<CarparkAvailabilityModel>) payloadByDay.getCarparkAvailabilityModels();
+            for (CarparkAvailabilityModel m: models) {
+                LtaDataMallProcessedPayload p = new LtaDataMallProcessedPayload();
+                p.setCarparkId(carpark_id);
+                p.setArea(m.getCarparkAvailabilityId().getArea());
+                p.setDevelopment(m.getCarparkAvailabilityId().getDevelopment());
+                p.setLatitude(m.getLatitude());
+                p.setLongitude(m.getLongitude());
+                p.setLotType(m.getCarparkAvailabilityId().getLotType());
+                p.setAvailableLots(m.getAvailableLots());
+                p.setHour(m.getCarparkAvailabilityId().getHour());
+                processedData.add(p);
+            }
+
+            HashSet<LotTypeAndNumberAndHour> set = new HashSet<>();
+            for (LtaDataMallProcessedPayload p: processedData) {
+                LotTypeAndNumberAndHour lotTypeAndNumberAndHour = new LotTypeAndNumberAndHour();
+                lotTypeAndNumberAndHour.setHour(p.getHour());
+                int h = Integer.parseInt(p.getHour());
+                if (h < 12) {
+                    lotTypeAndNumberAndHour.setTimeLabel(h+"am");
+                } else {
+                    lotTypeAndNumberAndHour.setTimeLabel(h+"pm");
+                }
+                lotTypeAndNumberAndHour.setAvailableLots(p.getAvailableLots());
+                lotTypeAndNumberAndHour.setLotType(p.getLotType());
+                if (lotTypes.contains(p.getLotType())) {
+                    set.add(lotTypeAndNumberAndHour);
+                }
+            }
+            payload.put(day, set);
+        }
+
+        return payload;
     }
 
     /**
      * Returns response for queries of nearest carpark availability within proximity at given instance in time.
-     * @param day day of week from request.
-     * @param areas list of area from request.
-     * @param developments list of development from request.
      * @param lotTypes list of lot types from request.
      * @param latitude latitude of source.
      * @param longitude longitude of source.
@@ -100,29 +124,63 @@ public class CarparkAvailabilityController {
      * @return list of carpark.
      */
     @GetMapping("/carpark-availability/nearest/queries")
-    public CarparkAvailabilityPayload getCarparkAvailabilityNearestByQueries(
-            @RequestParam() String day,
-            @RequestParam(defaultValue = ",") Set<String> areas,
-            @RequestParam(defaultValue = ",") Set<String> developments,
-            @RequestParam(defaultValue = ",") Set<String> lotTypes,
-            @RequestParam String latitude,
-            @RequestParam String longitude,
-            @RequestParam String radius
-    ) {
+    public Collection<LtaDataMallFinalPayloadDistance>  getCarparkAvailabilityNearestByQueries(
+        @RequestParam String latitude,
+        @RequestParam String longitude,
+        @RequestParam String radius,
+        @RequestParam(defaultValue = "") Set<String> lotTypes
+    ) throws IOException {
         double latitudeSource = Double.parseDouble(latitude);
         double longitudeSource = Double.parseDouble(longitude);
         double radiusProximity = Double.parseDouble(radius);
-        ArrayList<CarparkAvailabilityModel> listOfCarparkAvailabilityMondayModels =
-                (ArrayList<CarparkAvailabilityModel>) carparkAvailabilityTemplate
-                        .getCarparkAvailabilityByQueries(
-                                DayOfWeekValidation.parseDayOfWeek(day), areas, developments, lotTypes
-                        );
+        ArrayList<LtaDataMallValuePayload> data = LtaDataMallGetRequestService.getAllLtaDataMallValue();
+        ArrayList<LtaDataMallProcessedPayloadDistance> processedData = new ArrayList<>();
+        for (LtaDataMallValuePayload i: data) {
+            LtaDataMallProcessedPayloadDistance p = new LtaDataMallProcessedPayloadDistance();
+            p.setCarparkId(i.getCarparkId());
+            p.setArea(i.getArea());
+            p.setDevelopment(i.getDevelopment());
+            p.setLotType(i.getLotType());
+            p.setAvailableLots(i.getAvailableLots());
+            String[] loc = i.getLocation().split("\\s+");
+            if (loc.length > 1) {
+                p.setLatitude(loc[0]);
+                p.setLongitude(loc[1]);
 
-        return new CarparkAvailabilityPayload(
-                CarparkAvailabilityService.getNearestCarpark(
-                latitudeSource, longitudeSource, radiusProximity,
-                listOfCarparkAvailabilityMondayModels
-        ));
+                if (DistanceCalculationUtility.withinPromixity(
+                    latitudeSource, longitudeSource, Double.parseDouble(p.getLatitude()), Double.parseDouble(p.getLongitude()), radiusProximity
+                )) {
+                    p.setDistFromSrc(String.valueOf(DistanceCalculationUtility.getDistance(
+                        latitudeSource, longitudeSource, Double.parseDouble(p.getLatitude()), Double.parseDouble(p.getLongitude())
+                    )));
+                    processedData.add(p);
+                }
+            }
+        }
+
+        Map<String, LtaDataMallFinalPayloadDistance> payload = new HashMap<>();
+        for (LtaDataMallProcessedPayloadDistance p: processedData) {
+            if (payload.containsKey(p.toString())) {
+                LotTypeAndNumber lotTypeAndNumber = new LotTypeAndNumber();
+                lotTypeAndNumber.setAvailableLots(p.getAvailableLots());
+                lotTypeAndNumber.setLotType(p.getLotType());
+                payload.get(p.toString()).addLots(lotTypeAndNumber);
+            } else {
+                LtaDataMallFinalPayloadDistance a = new LtaDataMallFinalPayloadDistance();
+                a.setCarparkId(p.getCarparkId());
+                a.setArea(p.getArea());
+                a.setDevelopment(p.getDevelopment());
+                a.setLatitude(p.getLatitude());
+                a.setLongitude(p.getLongitude());
+                a.setLots(new HashSet<>());
+                a.setDistFromSrc(p.getDistFromSrc());
+                payload.put(p.toString(), a);
+                LotTypeAndNumber lotTypeAndNumber = new LotTypeAndNumber();
+                lotTypeAndNumber.setAvailableLots(p.getAvailableLots());
+                lotTypeAndNumber.setLotType(p.getLotType());
+                payload.get(p.toString()).addLots(lotTypeAndNumber);
+            }
+        }
+        return payload.values();
     }
-
 }
