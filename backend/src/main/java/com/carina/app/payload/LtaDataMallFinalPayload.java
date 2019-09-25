@@ -1,5 +1,6 @@
 package com.carina.app.payload;
 
+import java.util.Map;
 import java.util.Set;
 
 public class LtaDataMallFinalPayload {
@@ -14,7 +15,7 @@ public class LtaDataMallFinalPayload {
 
     private String longitude;
 
-    private Set<LotTypeAndNumber> lots;
+    private Map<String, String> lots;
 
     public String getCarparkId() {
         return carparkId;
@@ -56,16 +57,16 @@ public class LtaDataMallFinalPayload {
         this.development = development;
     }
 
-    public Set<LotTypeAndNumber> getLots() {
+    public Map<String, String> getLots() {
         return lots;
     }
 
-    public void setLots(Set<LotTypeAndNumber> lots) {
+    public void setLots(Map<String, String> lots) {
         this.lots = lots;
     }
 
-    public void addLots(LotTypeAndNumber lotTypeAndNumber) {
-        this.lots.add(lotTypeAndNumber);
+    public void addLots(String a, String b) {
+        this.lots.put(a, b);
     }
 
     @Override

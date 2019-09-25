@@ -42,10 +42,7 @@ public class CarparkAvailabilityController {
         Map<String, LtaDataMallFinalPayload> payload = new HashMap<>();
         for (LtaDataMallProcessedPayload p: processedData) {
             if (payload.containsKey(p.toString())) {
-                LotTypeAndNumber lotTypeAndNumber = new LotTypeAndNumber();
-                lotTypeAndNumber.setAvailableLots(p.getAvailableLots());
-                lotTypeAndNumber.setLotType(p.getLotType());
-                payload.get(p.toString()).addLots(lotTypeAndNumber);
+                payload.get(p.toString()).addLots(p.getLotType(), p.getAvailableLots());
             } else {
                 LtaDataMallFinalPayload a = new LtaDataMallFinalPayload();
                 a.setCarparkId(p.getCarparkId());
@@ -53,12 +50,9 @@ public class CarparkAvailabilityController {
                 a.setDevelopment(p.getDevelopment());
                 a.setLatitude(p.getLatitude());
                 a.setLongitude(p.getLongitude());
-                a.setLots(new HashSet<>());
+                a.setLots(new HashMap<>());
                 payload.put(p.toString(), a);
-                LotTypeAndNumber lotTypeAndNumber = new LotTypeAndNumber();
-                lotTypeAndNumber.setAvailableLots(p.getAvailableLots());
-                lotTypeAndNumber.setLotType(p.getLotType());
-                payload.get(p.toString()).addLots(lotTypeAndNumber);
+                payload.get(p.toString()).addLots(p.getLotType(), p.getAvailableLots());
             }
         }
         return payload.values();
@@ -161,10 +155,7 @@ public class CarparkAvailabilityController {
         Map<String, LtaDataMallFinalPayloadDistance> payload = new HashMap<>();
         for (LtaDataMallProcessedPayloadDistance p: processedData) {
             if (payload.containsKey(p.toString())) {
-                LotTypeAndNumber lotTypeAndNumber = new LotTypeAndNumber();
-                lotTypeAndNumber.setAvailableLots(p.getAvailableLots());
-                lotTypeAndNumber.setLotType(p.getLotType());
-                payload.get(p.toString()).addLots(lotTypeAndNumber);
+                payload.get(p.toString()).addLots(p.getLotType(), p.getAvailableLots());
             } else {
                 LtaDataMallFinalPayloadDistance a = new LtaDataMallFinalPayloadDistance();
                 a.setCarparkId(p.getCarparkId());
@@ -172,15 +163,62 @@ public class CarparkAvailabilityController {
                 a.setDevelopment(p.getDevelopment());
                 a.setLatitude(p.getLatitude());
                 a.setLongitude(p.getLongitude());
-                a.setLots(new HashSet<>());
+                a.setLots(new HashMap<>());
                 a.setDistFromSrc(p.getDistFromSrc());
                 payload.put(p.toString(), a);
-                LotTypeAndNumber lotTypeAndNumber = new LotTypeAndNumber();
-                lotTypeAndNumber.setAvailableLots(p.getAvailableLots());
-                lotTypeAndNumber.setLotType(p.getLotType());
-                payload.get(p.toString()).addLots(lotTypeAndNumber);
+                payload.get(p.toString()).addLots(p.getLotType(), p.getAvailableLots());
             }
         }
         return payload.values();
+    }
+
+    @GetMapping("/carpark-availability/carpark-id")
+    public Map<String, LtaDataMallFinalPayload>  getCarparkAvailabilityByCarparkId(
+        @RequestParam Set<String> carparkIds,
+        @RequestParam(defaultValue = "") Set<String> lotTypes
+    ) throws IOException {
+        ArrayList<LtaDataMallValuePayload> data = LtaDataMallGetRequestService.getAllLtaDataMallValue();
+        ArrayList<LtaDataMallProcessedPayload> processedData = new ArrayList<>();
+        for (LtaDataMallValuePayload i: data) {
+            LtaDataMallProcessedPayload p = new LtaDataMallProcessedPayload();
+            p.setCarparkId(i.getCarparkId());
+            p.setArea(i.getArea());
+            p.setDevelopment(i.getDevelopment());
+            p.setLotType(i.getLotType());
+            p.setAvailableLots(i.getAvailableLots());
+            String[] loc = i.getLocation().split("\\s+");
+            if (loc.length > 1) {
+                p.setLatitude(loc[0]);
+                p.setLongitude(loc[1]);
+                processedData.add(p);
+            }
+        }
+
+        Map<String, LtaDataMallFinalPayload> payload = new HashMap<>();
+        for (LtaDataMallProcessedPayload p: processedData) {
+            if (payload.containsKey(p.toString())) {
+                payload.get(p.toString()).addLots(p.getLotType(), p.getAvailableLots());
+            } else {
+                LtaDataMallFinalPayload a = new LtaDataMallFinalPayload();
+                a.setCarparkId(p.getCarparkId());
+                a.setArea(p.getArea());
+                a.setDevelopment(p.getDevelopment());
+                a.setLatitude(p.getLatitude());
+                a.setLongitude(p.getLongitude());
+                a.setLots(new HashMap<>());
+                payload.put(p.toString(), a);
+                payload.get(p.toString()).addLots(p.getLotType(), p.getAvailableLots());
+            }
+        }
+        Collection<LtaDataMallFinalPayload> ltaDataMallFinalPayloadCollection = payload.values();
+
+        Map<String, LtaDataMallFinalPayload> payloadMap = new HashMap<>();
+
+        for (LtaDataMallFinalPayload ltaDataMallFinalPayload: ltaDataMallFinalPayloadCollection) {
+            if (carparkIds.contains(ltaDataMallFinalPayload.getCarparkId())) {
+                payloadMap.put(ltaDataMallFinalPayload.getCarparkId(), ltaDataMallFinalPayload);
+            }
+        }
+        return payloadMap;
     }
 }
