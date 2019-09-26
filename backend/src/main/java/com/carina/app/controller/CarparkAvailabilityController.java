@@ -2,11 +2,11 @@ package com.carina.app.controller;
 
 import com.carina.app.model.CarparkAvailabilityModel;
 import com.carina.app.payload.*;
-import com.carina.app.service.CarparkAvailabilityService;
 import com.carina.app.service.LtaDataMallGetRequestService;
 import com.carina.app.template.CarparkAvailabilityTemplate;
 import com.carina.app.utility.DistanceCalculationUtility;
 import com.carina.app.validation.DayOfWeekValidation;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,18 +60,20 @@ public class CarparkAvailabilityController {
 
 
     @GetMapping("/carpark-availability/statistics")
-    public Map<String, Set<LotTypeAndNumberAndHour>> getCarparkStatistics(
+    public ArrayList<ArrayList<LotTypeAndNumberAndHour>> getCarparkStatistics(
         @RequestParam String carpark_id,
-        @RequestParam(defaultValue = "") Set<String> lotTypes
+        @RequestParam(defaultValue = "") Set<String> lotTypes,
+        @RequestParam(defaultValue = "") Set<String> days
     ) {
-        String [] days = {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"};
+
+        String [] daysStr = {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"};
         Map<String, Set<LotTypeAndNumberAndHour>> payload = new HashMap<>();
 
         for (String day: days) {
             ArrayList<LtaDataMallProcessedPayload> processedData = new ArrayList<>();
 
             CarparkAvailabilityPayload payloadByDay = new CarparkAvailabilityPayload(
-                carparkAvailabilityTemplate.getCarparkInfo(DayOfWeekValidation.parseDayOfWeek(day), carpark_id));
+                carparkAvailabilityTemplate.getCarparkInfo(DayOfWeekValidation.parseDayOfWeek(daysStr[Integer.parseInt(day)]), carpark_id));
 
             ArrayList<CarparkAvailabilityModel> models = (ArrayList<CarparkAvailabilityModel>) payloadByDay.getCarparkAvailabilityModels();
             for (CarparkAvailabilityModel m: models) {
@@ -93,9 +95,17 @@ public class CarparkAvailabilityController {
                 lotTypeAndNumberAndHour.setHour(p.getHour());
                 int h = Integer.parseInt(p.getHour());
                 if (h < 12) {
-                    lotTypeAndNumberAndHour.setTimeLabel(h+"am");
+                    if (h==0) {
+                        lotTypeAndNumberAndHour.setTimeLabel("12a");
+                    } else {
+                        lotTypeAndNumberAndHour.setTimeLabel(h + "a");
+                    }
                 } else {
-                    lotTypeAndNumberAndHour.setTimeLabel(h+"pm");
+                    if (h==12) {
+                        lotTypeAndNumberAndHour.setTimeLabel("12p");
+                    } else {
+                        lotTypeAndNumberAndHour.setTimeLabel((h%12)+"p");
+                    }
                 }
                 lotTypeAndNumberAndHour.setAvailableLots(p.getAvailableLots());
                 lotTypeAndNumberAndHour.setLotType(p.getLotType());
@@ -106,7 +116,31 @@ public class CarparkAvailabilityController {
             payload.put(day, set);
         }
 
-        return payload;
+        Map<String, ArrayList<LotTypeAndNumberAndHour>> payload2 = new HashMap<>();
+
+        for (String day: days) {
+            Set<LotTypeAndNumberAndHour> s = payload.get(day);
+            ArrayList<LotTypeAndNumberAndHour> arr = new ArrayList<>();
+            for (LotTypeAndNumberAndHour t : s) {
+                arr.add(t);
+            }
+            payload2.put(day, arr);
+            arr.sort(Comparator.comparingInt(o -> Integer.parseInt(o.getHour())));
+
+        }
+
+        ArrayList<ArrayList<LotTypeAndNumberAndHour>> finalPayload = new ArrayList<>();
+        ArrayList<String> daysSorted = new ArrayList<>();
+        for (String t : days) {
+            daysSorted.add(t);
+        }
+        daysSorted.sort(Comparator.comparingInt(Integer::parseInt));
+        for (String t: daysSorted) {
+            finalPayload.add(payload2.get(t));
+        }
+
+
+        return finalPayload;
     }
 
     /**
