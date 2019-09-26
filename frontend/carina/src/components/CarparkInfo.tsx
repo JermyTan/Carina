@@ -53,15 +53,14 @@ class CarparkInfo extends React.Component<
     this.handleExpand = this.handleExpand.bind(this);
     this.handleFavourite = this.handleFavourite.bind(this);
   }
-  /*
+
   componentDidMount() {
+    const currentDay = new Date().getDay();
     Axios.get(
-      `${process.env.REACT_APP_BACKEND_API}public/carpark-availability/statistics?carpark_id=${this.props.carpark.carparkId}&lotTypes=C`
+      `${process.env.REACT_APP_BACKEND_API}public/carpark-availability/statistics?carpark_id=${this.props.carpark.carparkId}&days=${currentDay}&lotTypes=C`
     ).then(response => {
       if (response.status == 200) {
-        const key: number = new Date().getDay();
-        const day: string = KeyDayMapping[key];
-        const data: any = response.data[day];
+        const data: any = response.data[0];
         const histogram: any = [];
         for (let i = 0; i < data.length; i++) {
           let temp = data[i];
@@ -72,19 +71,11 @@ class CarparkInfo extends React.Component<
           };
           histogram.push(hourlyData);
         }
-        histogram.sort(
-          (hourlyData1: any, hourlyData2: any) =>
-            hourlyData1.hour - hourlyData2.hour
-        );
-        for (let i = 0; i < 6; i++) {
-          histogram.push(histogram.shift());
-        }
         console.log(histogram);
         this.setState({ histogramData: histogram });
       }
     });
   }
-  */
 
   handleExpand() {
     this.setState({ isExpanded: !this.state.isExpanded });
