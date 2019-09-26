@@ -1,0 +1,24 @@
+{
+  "name": "Carina",
+  "short_name": "Carina",
+  "icons": [
+    {
+      "src": "/android-chrome-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/manifest-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/manifest-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#dc87c8",
+  "background_color": "#dc87c8",
+  "display": "standalone"
+}
