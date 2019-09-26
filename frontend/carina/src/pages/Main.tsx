@@ -13,7 +13,11 @@ import CarparkMap from "../components/CarparkMap";
 import CarparkInfo from "../components/CarparkInfo";
 import { LOCAL_STORAGE_CARPARKS } from "../utils/Constants";
 import { Carpark, Point } from "../utils/Types";
-import { withinRadius, computeDistance } from "../utils/MainUtils";
+import {
+  withinRadius,
+  mapEntriesToCarparks,
+  updateCarparksDistFromSrc
+} from "../utils/MainUtils";
 
 import "styles/Main.scss";
 
@@ -83,18 +87,7 @@ class MainPage extends React.Component<any, IMainPageState> {
     )
       .then(response => {
         if (response.status === 200) {
-          console.log(response.data);
-          const carparks = response.data.map((entry: any) => {
-            return {
-              carparkId: entry.carparkId,
-              address: entry.development,
-              subAddress: entry.area,
-              latitude: parseFloat(entry.latitude),
-              longitude: parseFloat(entry.longitude),
-              availableLots: entry.lots.C,
-              distFromSrc: -1
-            } as Carpark;
-          });
+          const carparks = mapEntriesToCarparks(response.data, false);
           this.setState({
             carparks
           });
@@ -103,7 +96,7 @@ class MainPage extends React.Component<any, IMainPageState> {
             LOCAL_STORAGE_CARPARKS,
             JSON.stringify(carparks)
           );
-          console.log("Retrieved from backend: everything");
+          console.log("Backend: everything", carparks);
         } else {
           const carparks = localStorage.getItem(LOCAL_STORAGE_CARPARKS);
           // If is offline, retrieve from local storage
@@ -111,7 +104,7 @@ class MainPage extends React.Component<any, IMainPageState> {
             this.setState({
               carparks: JSON.parse(carparks)
             });
-            console.log("Retrieved from local storage: everything");
+            console.log("Local storage: everything", carparks);
           }
         }
       })
@@ -132,15 +125,20 @@ class MainPage extends React.Component<any, IMainPageState> {
         .ref(`users/${currentUser.uid}/carparks`)
         .on("value", data => {
           const favouritedCarparksIds = data.val();
-          console.log(
-            "List of favourited carpark ids: ",
-            favouritedCarparksIds
-          );
           if (favouritedCarparksIds) {
-            const favouritedCarparks = this.state.carparks.filter(
-              carpark => carpark.carparkId in favouritedCarparksIds
-            );
-            this.setState({ favouritedCarparks, favouritedCarparksIds });
+            const carparkIds = Object.keys(favouritedCarparksIds).join(",");
+            Axios.get(
+              `${process.env.REACT_APP_BACKEND_API}public/carpark-availability/carpark-id?carparkIds=${carparkIds}&lotTypes=C`
+            ).then(response => {
+              if (response.status == 200) {
+                const favouritedCarparks = updateCarparksDistFromSrc(
+                  mapEntriesToCarparks(Object.values(response.data), false),
+                  this.state.location
+                );
+                this.setState({ favouritedCarparks, favouritedCarparksIds });
+                console.log("Backend: favourites", favouritedCarparks);
+              }
+            });
           } else {
             this.setState({
               favouritedCarparks: [],
@@ -157,35 +155,13 @@ class MainPage extends React.Component<any, IMainPageState> {
     ).then(response => {
       var carparksToShow;
       if (response.status == 200) {
-        carparksToShow = response.data.map((entry: any) => {
-          return {
-            carparkId: entry.carparkId,
-            address: entry.development,
-            subAddress: entry.area,
-            latitude: parseFloat(entry.latitude),
-            longitude: parseFloat(entry.longitude),
-            availableLots: entry.lots.C,
-            distFromSrc: parseInt(entry.distFromSrc)
-          } as Carpark;
-        });
-        console.log("Retrieved from backend: within radius");
+        carparksToShow = mapEntriesToCarparks(response.data, true);
+        console.log("Backend: within radius", carparksToShow);
       } else {
-        carparksToShow = this.state.carparks
-          .filter((carpark: Carpark) => {
-            withinRadius(carpark, location, parseInt(radius));
-          })
-          .map((carpark: Carpark) => {
-            return {
-              carparkId: carpark.carparkId,
-              address: carpark.address,
-              subAddress: carpark.subAddress,
-              latitude: carpark.latitude,
-              longitude: carpark.longitude,
-              availableLots: carpark.availableLots,
-              distFromSrc: computeDistance(carpark, this.state.location)
-            } as Carpark;
-          });
-        console.log("Retrieved from local storage: within radius");
+        carparksToShow = this.state.carparks.filter((carpark: Carpark) => {
+          withinRadius(carpark, location, parseInt(radius));
+        });
+        console.log("Local storage: within radius", carparksToShow);
       }
       //sorts by distance (nearest to furthers)
       carparksToShow.sort(
@@ -318,7 +294,7 @@ class MainPage extends React.Component<any, IMainPageState> {
   }
 
   renderCarparks(carparks: Carpark[]) {
-    console.log(carparks);
+    console.log("Rendered carparks", carparks);
     return carparks.map(carpark => (
       <CarparkInfo
         key={carpark.carparkId}

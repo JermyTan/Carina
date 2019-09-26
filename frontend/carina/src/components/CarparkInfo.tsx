@@ -9,10 +9,12 @@ import star from "../svgs/favourite.svg";
 import starFilled from "../svgs/favourited.svg";
 import HistogramChart, { HistogramData } from "./HistogramChart";
 import { Carpark } from "../utils/Types";
+import Axios from "axios";
 
 interface ICarparkInfoState {
   isExpanded: boolean;
   isFavourited: boolean;
+  histogramData: any;
 }
 
 interface ICarparkInfoProps {
@@ -26,6 +28,16 @@ interface ICarparkInfoProps {
 const GOOGLE_MAP_REDIR_URL_PREFIX =
   "https://www.google.com/maps/search/?api=1&query=";
 
+const KeyDayMapping = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday"
+];
+
 class CarparkInfo extends React.Component<
   ICarparkInfoProps,
   ICarparkInfoState
@@ -34,12 +46,45 @@ class CarparkInfo extends React.Component<
     super(props);
     this.state = {
       isExpanded: false,
-      isFavourited: this.props.isFavourited
+      isFavourited: this.props.isFavourited,
+      histogramData: HistogramData
     };
 
     this.handleExpand = this.handleExpand.bind(this);
     this.handleFavourite = this.handleFavourite.bind(this);
   }
+  /*
+  componentDidMount() {
+    Axios.get(
+      `${process.env.REACT_APP_BACKEND_API}public/carpark-availability/statistics?carpark_id=${this.props.carpark.carparkId}&lotTypes=C`
+    ).then(response => {
+      if (response.status == 200) {
+        const key: number = new Date().getDay();
+        const day: string = KeyDayMapping[key];
+        const data: any = response.data[day];
+        const histogram: any = [];
+        for (let i = 0; i < data.length; i++) {
+          let temp = data[i];
+          let hourlyData = {
+            hour: parseInt(temp.hour),
+            timeLabel: temp.timeLabel,
+            lots: parseInt(temp.availableLots)
+          };
+          histogram.push(hourlyData);
+        }
+        histogram.sort(
+          (hourlyData1: any, hourlyData2: any) =>
+            hourlyData1.hour - hourlyData2.hour
+        );
+        for (let i = 0; i < 6; i++) {
+          histogram.push(histogram.shift());
+        }
+        console.log(histogram);
+        this.setState({ histogramData: histogram });
+      }
+    });
+  }
+  */
 
   handleExpand() {
     this.setState({ isExpanded: !this.state.isExpanded });
@@ -138,19 +183,11 @@ class CarparkInfo extends React.Component<
               <div className="card-subtitle text-muted">lots left</div>
             </div>
           </div>
-          <div className="card-body d-flex no-gutters justify-content-between elab-wrapper">
-            <div className="d-flex flex-column">
-              <span>Price</span>
-              {/* TODO: If no time range given, we default to 1 hour, if there is we calculate total price */}
-              <span>$13.75</span>
-              {/* TODO: Show how we derived at price */}
-              <span>Price breakdown</span>
-            </div>
-
-            <div className="d-flex flex-column distance-info">
-              <span>Dist</span>
+          <div className="card-body d-flex no-gutters justify-content-end elab-wrapper">
+            <div className="d-flex distance-info">
               <span>{this.props.carpark.distFromSrc} m</span>
               <a
+                className="redirection-icon"
                 href={redirectionUrl}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -161,7 +198,7 @@ class CarparkInfo extends React.Component<
           </div>
           {this.state.isExpanded && (
             <div className="card-body lot-histogram">
-              <HistogramChart data={HistogramData} />
+              <HistogramChart data={this.state.histogramData} />
             </div>
           )}
           <div className="expansion-wrapper" onClick={this.handleExpand}>
