@@ -32,7 +32,7 @@ interface IMainPageState {
   user: any;
   showFavourites: boolean;
   favouritedCarparks: Carpark[];
-  favouritedCarparksIds: object;
+  favouritedCarparkIds: object;
   carparksToShow: Carpark[];
 
   // refs for use in scrolling
@@ -56,7 +56,7 @@ class MainPage extends React.Component<any, IMainPageState> {
       user: null,
       showFavourites: false,
       favouritedCarparks: [],
-      favouritedCarparksIds: {},
+      favouritedCarparkIds: {},
       carparksToShow: [],
       refs: {}
     };
@@ -124,9 +124,9 @@ class MainPage extends React.Component<any, IMainPageState> {
         .database()
         .ref(`users/${currentUser.uid}/carparks`)
         .on("value", data => {
-          const favouritedCarparksIds = data.val();
-          if (favouritedCarparksIds) {
-            const carparkIds = Object.keys(favouritedCarparksIds).join(",");
+          const favouritedCarparkIds = data.val();
+          if (favouritedCarparkIds) {
+            const carparkIds = Object.keys(favouritedCarparkIds).join(",");
             Axios.get(
               `${process.env.REACT_APP_BACKEND_API}public/carpark-availability/carpark-id?carparkIds=${carparkIds}&lotTypes=C`
             ).then(response => {
@@ -135,14 +135,14 @@ class MainPage extends React.Component<any, IMainPageState> {
                   mapEntriesToCarparks(Object.values(response.data), false),
                   this.state.location
                 );
-                this.setState({ favouritedCarparks, favouritedCarparksIds });
+                this.setState({ favouritedCarparks, favouritedCarparkIds });
                 console.log("Backend: favourites", favouritedCarparks);
               }
             });
           } else {
             this.setState({
               favouritedCarparks: [],
-              favouritedCarparksIds: {}
+              favouritedCarparkIds: {}
             });
           }
         });
@@ -305,7 +305,7 @@ class MainPage extends React.Component<any, IMainPageState> {
         innerRef={this.state.refs[carpark.carparkId]}
         carpark={carpark}
         showFavourite={this.state.user != null}
-        isFavourited={carpark.carparkId in this.state.favouritedCarparksIds}
+        isFavourited={carpark.carparkId in this.state.favouritedCarparkIds}
       />
     ));
   }
