@@ -4,37 +4,35 @@ import {
   GoogleApiWrapper,
   Marker,
   Circle,
-  InfoWindow,
+  InfoWindow
 } from "google-maps-react";
 // @ts-ignore
 import MarkerClusterer from "@google/markerclustererplus";
 
 import CurrLocationSvg from "../svgs/curr-location.svg";
-import { Location } from "../pages/Main";
+import { Point, Carpark } from "../utils/Types";
 
 import "../styles/CarparkMap.scss";
 
 interface ICarparkMapProps {
-  location: {
-    lat: number;
-    lng: number;
-  };
+  location: Point;
   zoom: number;
   radius: number;
+  carparks: Carpark[];
   // Indexer, for any other props passed by higher order component
   [x: string]: any;
 }
 
 interface ICarparkMapState {
   showingInfoWindow: boolean;
-  activeMarker: Location | {};
+  activeMarker: {};
   selectedPlace: any;
   map: any;
 }
 
 const mapStyles = {
   width: "100%",
-  height: "100%",
+  height: "100%"
 };
 
 class CarparkMap extends Component<ICarparkMapProps, ICarparkMapState> {
@@ -45,7 +43,7 @@ class CarparkMap extends Component<ICarparkMapProps, ICarparkMapState> {
       showingInfoWindow: false,
       activeMarker: {},
       selectedPlace: {},
-      map: null,
+      map: null
     };
   }
 
@@ -59,18 +57,23 @@ class CarparkMap extends Component<ICarparkMapProps, ICarparkMapState> {
 
   onMarkerClick = (props: any) => {
     this.setState({
-      activeMarker: props.entry as Location,
-      showingInfoWindow: true,
+      activeMarker: props.entry,
+      selectedPlace: props.carpark,
+      showingInfoWindow: true
     });
+
+    this.props.handleMarkerClick(props.carpark.carparkId);
   };
 
   onCloseInfoWindow = () => {
     if (this.state.showingInfoWindow) {
       this.setState({
         showingInfoWindow: false,
-        activeMarker: {},
+        activeMarker: {}
       });
     }
+
+    this.props.handleInfoWindowClose();
   };
 
   render() {
@@ -109,7 +112,7 @@ class CarparkMap extends Component<ICarparkMapProps, ICarparkMapState> {
             visible={this.state.showingInfoWindow}
             onClose={this.onCloseInfoWindow}
           >
-            <div>{(this.state.activeMarker as Location).id}</div>
+            <InfoDetails selectedCarpark={this.state.selectedPlace} />
           </InfoWindow>
           <Circle
             radius={this.props.radius}
@@ -126,6 +129,32 @@ class CarparkMap extends Component<ICarparkMapProps, ICarparkMapState> {
   }
 }
 
+const InfoDetails = ({ selectedCarpark }: { selectedCarpark: Carpark }) => {
+  console.log(selectedCarpark);
+
+  const classifyLotCount = (numLots: number) => {
+    if (numLots >= 100) return "high";
+    if (numLots >= 30) return "med";
+    return "low";
+  };
+
+  return (
+    <div className="info-details-container">
+      <div className="info-header">{selectedCarpark.address}</div>
+      <div className="info-subtitle">{selectedCarpark.subAddress}</div>
+      {selectedCarpark.availableLots && (
+        <div
+          className={`lot-count ${classifyLotCount(
+            parseInt(selectedCarpark.availableLots)
+          )}`}
+        >
+          {selectedCarpark.availableLots} lots left
+        </div>
+      )}
+    </div>
+  );
+};
+
 const evtNames = [
   "click",
   "dblclick",
@@ -134,19 +163,18 @@ const evtNames = [
   "mouseout",
   "mouseover",
   "mouseup",
-  "recenter",
+  "recenter"
 ];
 
 const MarkerCluster: React.FunctionComponent<any> = props => {
   const { map, google, markers } = props;
 
-  const handleEvent = ({ event, marker, entry }: any) => {
+  const handleEvent = ({ event, carpark, entry }: any) => {
     if (props[event]) {
       props[event]({
-        props: props,
-        marker: marker,
-        event: event,
-        entry: entry,
+        carpark,
+        event,
+        entry
       });
     }
   };
@@ -156,22 +184,21 @@ const MarkerCluster: React.FunctionComponent<any> = props => {
   // I added the hook so that I could implement a cleanup function
   useEffect(() => {
     if (map && markers) {
-      const mapMarkers = markers.map((marker: Location) => {
+      const mapMarkers = markers.map((carpark: Carpark) => {
         const entry = new google.maps.Marker({
           position: {
-            lat: parseFloat(marker.lat),
-            lng: parseFloat(marker.lng),
+            lat: carpark.latitude,
+            lng: carpark.longitude
           },
-          map: map,
-          id: marker.id,
+          map
         });
 
-        evtNames.forEach(e => {
-          entry.addListener(e, () =>
+        evtNames.forEach(event => {
+          entry.addListener(event, () =>
             handleEvent({
-              event: e,
-              marker: marker,
-              entry: entry,
+              event,
+              carpark,
+              entry
             })
           );
         });
@@ -186,7 +213,7 @@ const MarkerCluster: React.FunctionComponent<any> = props => {
         clusterer.clearMarkers();
       };
     }
-  }, [map, google, markers]);
+  }, [map, google, markers as Carpark[]]);
 
   // Do we need to render anything??
   return null;
@@ -194,6 +221,6 @@ const MarkerCluster: React.FunctionComponent<any> = props => {
 
 export default GoogleApiWrapper({
   // NOTE: you must have a valid google map API key in your environmental variables
-  apiKey: process.env.REACT_APP_GOOGLE_MAP_API_KEY!,
+  apiKey: process.env.REACT_APP_GOOGLE_MAP_API_KEY!
   //@ts-ignore
 })(CarparkMap);

@@ -1,1 +1,1 @@
-export const LOCAL_STORAGE_MARKERS = "markers";
+export const LOCAL_STORAGE_CARPARKS = "carparks";

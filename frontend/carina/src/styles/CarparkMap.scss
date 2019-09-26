@@ -22,3 +22,30 @@
     color: #111;
   }
 }
+
+.info-details-container {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  font-weight: 500;
+
+  & .info-header {
+    font-size: 1.1em;
+  }
+
+  & .lot-count {
+    line-height: 1em;
+    font-size: 1.3em;
+    margin: 0.4em 0;
+    font-weight: bold;
+    &.high {
+      color: #006647;
+    }
+    &.med {
+      color: #cc860c;
+    }
+    &.low {
+      color: #b50600;
+    }
+  }
+}

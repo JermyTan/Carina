@@ -8,6 +8,7 @@ import DirectionsSvg from "./svgrs/DirectionsSvg";
 import star from "../svgs/favourite.svg";
 import starFilled from "../svgs/favourited.svg";
 import HistogramChart, { HistogramData } from "./HistogramChart";
+import { Carpark } from "../utils/Types";
 
 interface ICarparkInfoState {
   isExpanded: boolean;
@@ -15,16 +16,11 @@ interface ICarparkInfoState {
 }
 
 interface ICarparkInfoProps {
-  id: string;
-  location: {
-    lat: number;
-    lng: number;
-  };
-  address: string;
-  subAddress: string;
-  numLots: string;
+  carpark: Carpark;
   showFavourite: boolean;
   isFavourited: boolean;
+  selectedOnMap: boolean;
+  innerRef: any;
 }
 
 const GOOGLE_MAP_REDIR_URL_PREFIX =
@@ -51,10 +47,10 @@ class CarparkInfo extends React.Component<
 
   handleFavourite() {
     if (!this.state.isFavourited) {
-      //Add carpark to firebase
+      //Add carparkId to firebase
       this.addToFavourites();
     } else {
-      //Remove carpark from firebase
+      //Remove carparkId from firebase
       this.removeFromFavourites();
     }
   }
@@ -64,7 +60,9 @@ class CarparkInfo extends React.Component<
     if (currentUser) {
       firebase
         .database()
-        .ref(`users/${currentUser.uid}/carparks/${this.props.id}`)
+        .ref(
+          `users/${currentUser.uid}/carparks/${this.props.carpark.carparkId}`
+        )
         .set(true)
         .then(() => {
           console.log("Added to favourites");
@@ -81,7 +79,9 @@ class CarparkInfo extends React.Component<
     if (currentUser) {
       firebase
         .database()
-        .ref(`users/${currentUser.uid}/carparks/${this.props.id}`)
+        .ref(
+          `users/${currentUser.uid}/carparks/${this.props.carpark.carparkId}`
+        )
         .remove()
         .then(() => {
           console.log("Removed from favourites");
@@ -93,27 +93,29 @@ class CarparkInfo extends React.Component<
     }
   }
 
-  classifyLotCount(numLots: number) {
-    if (numLots >= 100) return "high";
-    if (numLots >= 30) return "med";
+  classifyLotCount(availableLots: number) {
+    if (availableLots >= 100) return "high";
+    if (availableLots >= 30) return "med";
     return "low";
   }
 
   render() {
     const redirectionUrl = [
       GOOGLE_MAP_REDIR_URL_PREFIX,
-      this.props.location.lat,
+      this.props.carpark.longitude,
       ",",
-      this.props.location.lng
+      this.props.carpark.latitude
     ].join("");
     return (
-      <div className="info-wrapper">
-        <div className="info card">
+      <div ref={this.props.innerRef} className="info-wrapper">
+        <div
+          className={`info card ${this.props.selectedOnMap ? "selected" : ""}`}
+        >
           <div className="card-body d-flex no-gutters justify-content-between">
             <div className="carpark-addresses">
-              <h5 className="card-title">{this.props.address}</h5>
+              <h5 className="card-title">{this.props.carpark.address}</h5>
               <h6 className="card-subtitle text-muted">
-                {this.props.subAddress}
+                {this.props.carpark.subAddress}
               </h6>
             </div>
             {this.props.showFavourite && (
@@ -128,10 +130,10 @@ class CarparkInfo extends React.Component<
             <div className="carpark-lots">
               <div
                 className={`lot-count ${this.classifyLotCount(
-                  parseInt(this.props.numLots)
+                  parseInt(this.props.carpark.availableLots)
                 )}`}
               >
-                {this.props.numLots}
+                {this.props.carpark.availableLots}
               </div>
               <div className="card-subtitle text-muted">lots left</div>
             </div>
@@ -147,7 +149,7 @@ class CarparkInfo extends React.Component<
 
             <div className="d-flex flex-column distance-info">
               <span>Dist</span>
-              <span>123 m</span>
+              <span>{this.props.carpark.distFromSrc} m</span>
               <a
                 href={redirectionUrl}
                 target="_blank"
@@ -171,4 +173,6 @@ class CarparkInfo extends React.Component<
   }
 }
 
-export default CarparkInfo;
+export default React.forwardRef((props: ICarparkInfoProps, ref) => (
+  <CarparkInfo innerRef={ref} {...props} />
+));
