@@ -2,11 +2,12 @@ import React, { createRef } from "react";
 import Axios from "axios";
 import GooglePlacesAutocomplete, {
   geocodeByPlaceId,
-  getLatLng
+  getLatLng,
   // @ts-ignore
 } from "react-google-places-autocomplete";
 // @ts-ignore
 import Geocode from "react-geocode";
+import { debounce } from "throttle-debounce";
 import firebase, { auth, provider } from "../firebase";
 
 import CarparkMap from "../components/CarparkMap";
@@ -21,6 +22,7 @@ Geocode.setApiKey(process.env.REACT_APP_GOOGLE_MAP_API_KEY);
 
 interface IMainPageState {
   location: Point;
+  selectedLatLng: Point;
   zoom: number;
   radius: string;
   address: string;
@@ -40,11 +42,13 @@ class MainPage extends React.Component<any, IMainPageState> {
   constructor(props: any) {
     super(props);
 
+    const point: Point = {
+      lat: 1.2935861,
+      lng: 103.7844513,
+    };
     this.state = {
-      location: {
-        lat: 1.2935861,
-        lng: 103.7844513
-      } as Point,
+      location: point,
+      selectedLatLng: point,
       zoom: 16,
       radius: "300",
       address: "Kent Ridge MRT Station",
@@ -54,7 +58,7 @@ class MainPage extends React.Component<any, IMainPageState> {
       favouritedCarparks: [],
       favouritedCarparksIds: {},
       carparksToShow: [],
-      refs: {}
+      refs: {},
     };
 
     this.handleRadiusChange = this.handleRadiusChange.bind(this);
@@ -67,6 +71,12 @@ class MainPage extends React.Component<any, IMainPageState> {
     this.handleClear = this.handleClear.bind(this);
     this.scrollToCarparkInfo = this.scrollToCarparkInfo.bind(this);
     this.resetSelectedCarpark = this.resetSelectedCarpark.bind(this);
+    this.handleCarparkClicked = this.handleCarparkClicked.bind(this);
+
+    this.updateCarparksWithinRadius = debounce(
+      500,
+      this.updateCarparksWithinRadius
+    );
   }
 
   componentDidMount() {
@@ -92,11 +102,11 @@ class MainPage extends React.Component<any, IMainPageState> {
               latitude: parseFloat(entry.latitude),
               longitude: parseFloat(entry.longitude),
               availableLots: entry.lots.C,
-              distFromSrc: -1
+              distFromSrc: -1,
             } as Carpark;
           });
           this.setState({
-            carparks
+            carparks,
           });
 
           localStorage.setItem(
@@ -109,7 +119,7 @@ class MainPage extends React.Component<any, IMainPageState> {
           // If is offline, retrieve from local storage
           if (carparks) {
             this.setState({
-              carparks: JSON.parse(carparks)
+              carparks: JSON.parse(carparks),
             });
             console.log("Retrieved from local storage: everything");
           }
@@ -144,7 +154,7 @@ class MainPage extends React.Component<any, IMainPageState> {
           } else {
             this.setState({
               favouritedCarparks: [],
-              favouritedCarparksIds: {}
+              favouritedCarparksIds: {},
             });
           }
         });
@@ -165,7 +175,7 @@ class MainPage extends React.Component<any, IMainPageState> {
             latitude: parseFloat(entry.latitude),
             longitude: parseFloat(entry.longitude),
             availableLots: entry.lots.C,
-            distFromSrc: parseInt(entry.distFromSrc)
+            distFromSrc: parseInt(entry.distFromSrc),
           } as Carpark;
         });
         console.log("Retrieved from backend: within radius");
@@ -182,7 +192,7 @@ class MainPage extends React.Component<any, IMainPageState> {
               latitude: carpark.latitude,
               longitude: carpark.longitude,
               availableLots: carpark.availableLots,
-              distFromSrc: computeDistance(carpark, this.state.location)
+              distFromSrc: computeDistance(carpark, this.state.location),
             } as Carpark;
           });
         console.log("Retrieved from local storage: within radius");
@@ -196,16 +206,18 @@ class MainPage extends React.Component<any, IMainPageState> {
         acc[carpark.carparkId] = createRef();
         return acc;
       }, {});
-      this.setState({ location, radius, address, carparksToShow, refs });
+      this.setState({ location, address, carparksToShow, refs });
     });
   }
 
   handleRadiusChange(event: React.ChangeEvent<HTMLInputElement>) {
     const value: string = event.target.value;
     if (value) {
+      const radiusToSearch = parseInt(value) > 3000 ? "3000" : value;
+      this.setState({ radius: radiusToSearch });
       this.updateCarparksWithinRadius(
         this.state.location,
-        value,
+        radiusToSearch,
         this.state.address
       );
     } else {
@@ -215,7 +227,7 @@ class MainPage extends React.Component<any, IMainPageState> {
 
   handleBlur() {
     this.setState({
-      radius: this.state.radius === "" ? "0" : this.state.radius
+      radius: this.state.radius === "" ? "0" : this.state.radius,
     });
   }
 
@@ -234,7 +246,7 @@ class MainPage extends React.Component<any, IMainPageState> {
 
   handleClear() {
     this.setState({
-      address: " "
+      address: " ",
     });
   }
 
@@ -244,7 +256,7 @@ class MainPage extends React.Component<any, IMainPageState> {
         const { latitude, longitude } = position.coords;
         const location = {
           lat: latitude,
-          lng: longitude
+          lng: longitude,
         } as Point;
         Geocode.fromLatLng(latitude, longitude).then((response: any) => {
           const address = response.results[0].formatted_address;
@@ -296,17 +308,22 @@ class MainPage extends React.Component<any, IMainPageState> {
     if (this.state.user) {
       return (
         <div className="header-login">
-          <button className="button" onClick={this.logout}>
+          <button
+            type="button"
+            className="btn btn-outline-secondary"
+            onClick={this.logout}
+          >
             Log Out
           </button>
-          <div className="displayName">
-            You are currently signed in as {this.state.user.displayName}.
-          </div>
         </div>
       );
     } else {
       return (
-        <button className="button" onClick={this.login}>
+        <button
+          type="button"
+          className="btn btn-outline-secondary"
+          onClick={this.login}
+        >
           Log In
         </button>
       );
@@ -317,11 +334,21 @@ class MainPage extends React.Component<any, IMainPageState> {
     this.setState({ showFavourites: !this.state.showFavourites });
   }
 
+  handleCarparkClicked(carpark: Carpark) {
+    this.setState({
+      selectedLatLng: {
+        lat: carpark.latitude,
+        lng: carpark.longitude,
+      },
+    });
+  }
+
   renderCarparks(carparks: Carpark[]) {
     console.log(carparks);
     return carparks.map(carpark => (
       <CarparkInfo
         key={carpark.carparkId}
+        handleClicked={this.handleCarparkClicked}
         selectedOnMap={
           this.state.selectedId !== undefined &&
           this.state.selectedId === carpark.carparkId
@@ -340,14 +367,18 @@ class MainPage extends React.Component<any, IMainPageState> {
     if (this.state.refs[id]) {
       this.state.refs[id].current.scrollIntoView({
         behavior: "smooth",
-        block: "start"
+        block: "start",
+      });
+
+      this.setState({
+        selectedId: id,
       });
     }
   }
 
   resetSelectedCarpark() {
     this.setState({
-      selectedId: undefined
+      selectedId: undefined,
     });
   }
 
@@ -355,22 +386,22 @@ class MainPage extends React.Component<any, IMainPageState> {
     return (
       <div className="row no-gutters">
         <div className="col-lg-7 left-col">
-          <div className="header">{this.renderLoginButton()}</div>
           {/* Start of form */}
           <form>
             <div className="form-group">
+              <label htmlFor="google-places-autocomplete-input">Location</label>
               <div className="input-group mb-2 search-bar">
                 <GooglePlacesAutocomplete
                   inputClassName="form-control"
                   autocompletionRequest={{
-                    componentRestrictions: { country: "sg" }
+                    componentRestrictions: { country: "sg" },
                   }}
                   initialValue={this.state.address}
                   onSelect={this.handleSelectLocation}
                 />
                 <div className="input-group-append">
                   <div className="clear-input" onClick={this.handleClear}>
-                    <i className="fa fa-times-circle" />
+                    <i className="fas fa-times-circle" />
                   </div>
                   <button
                     type="button"
@@ -382,38 +413,43 @@ class MainPage extends React.Component<any, IMainPageState> {
                 </div>
               </div>
               <label htmlFor="radiusInput">Search radius</label>
-              <div className="input-group mb-2">
-                <input
-                  className="form-control"
-                  id="radiusInput"
-                  type="number"
-                  value={this.state.radius}
-                  onChange={this.handleRadiusChange}
-                  onBlur={this.handleBlur}
-                />
-                <div className="input-group-append">
-                  <div className="input-group-text">metres</div>
+              <div className="radius-login-wrapper">
+                <div className="input-group mb-2 radius-input">
+                  <input
+                    className="form-control"
+                    id="radiusInput"
+                    type="number"
+                    value={this.state.radius}
+                    onChange={this.handleRadiusChange}
+                    onBlur={this.handleBlur}
+                  />
+                  <div className="input-group-append">
+                    <div className="input-group-text">metres</div>
+                  </div>
                 </div>
+                <div>{this.renderLoginButton()}</div>
               </div>
             </div>
           </form>
           {/* End of form */}
 
-          <section className="carparks-header">
-            {!this.state.showFavourites && (
+          <div className="carparks-header">
+            {this.state.showFavourites ? (
+              <div className="label">Showing favourites</div>
+            ) : (
               <div className="label">
                 {this.state.carparksToShow.length} carparks within radius
               </div>
             )}
             {this.state.user && (
-              <button
-                className="toggle-favourite"
+              <i
                 onClick={this.toggleFavourite}
-              >
-                {this.state.showFavourites ? "Cancel" : "Show favourites"}
-              </button>
+                className={`toggle-favourite far fa-heart ${
+                  this.state.showFavourites ? "active" : ""
+                }`}
+              ></i>
             )}
-          </section>
+          </div>
           <div className="carparks">
             {this.renderCarparks(
               this.state.showFavourites
@@ -425,7 +461,9 @@ class MainPage extends React.Component<any, IMainPageState> {
         <div className="map-wrapper col-lg-5">
           <CarparkMap
             handleMarkerClick={this.scrollToCarparkInfo}
+            handleInfoWindowClose={this.resetSelectedCarpark}
             location={this.state.location}
+            currentLatLng={this.state.selectedLatLng}
             radius={this.state.radius === "" ? 0 : parseInt(this.state.radius)}
             markers={this.state.carparks}
           />

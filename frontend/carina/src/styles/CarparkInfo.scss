@@ -26,12 +26,38 @@
       border-radius: 4px !important;
     }
 
+    &.selected {
+      position: relative !important;
+      color: rgb(72, 72, 72) !important;
+      height: 100% !important;
+      margin-bottom: 4px !important;
+      box-shadow: rgba(228, 105, 35, 0.12) 0px 0px 12px !important;
+      border-width: 1px !important;
+      border-style: solid !important;
+      border-color: #ffc107 !important;
+      border-image: initial !important;
+      border-radius: 4px !important;
+    }
+
     .favourite {
       display: flex;
       margin-left: auto;
       margin-right: 1em;
+      align-items: center;
+      font-size: 1.2em;
+      cursor: pointer;
 
-      .favourite-icon {
+      &:hover,
+      &:focus {
+        color: #c73c55;
+      }
+      & .fas.fa-heart {
+        color: #f15f79;
+
+        &:hover,
+        &:focus {
+          color: #c73c55;
+        }
       }
     }
 
