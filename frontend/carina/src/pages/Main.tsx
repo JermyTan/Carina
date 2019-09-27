@@ -22,6 +22,7 @@ Geocode.setApiKey(process.env.REACT_APP_GOOGLE_MAP_API_KEY);
 
 interface IMainPageState {
   location: Point;
+  selectedLatLng: Point;
   zoom: number;
   radius: string;
   address: string;
@@ -41,11 +42,13 @@ class MainPage extends React.Component<any, IMainPageState> {
   constructor(props: any) {
     super(props);
 
+    const point: Point = {
+      lat: 1.2935861,
+      lng: 103.7844513,
+    };
     this.state = {
-      location: {
-        lat: 1.2935861,
-        lng: 103.7844513,
-      } as Point,
+      location: point,
+      selectedLatLng: point,
       zoom: 16,
       radius: "300",
       address: "Kent Ridge MRT Station",
@@ -68,6 +71,7 @@ class MainPage extends React.Component<any, IMainPageState> {
     this.handleClear = this.handleClear.bind(this);
     this.scrollToCarparkInfo = this.scrollToCarparkInfo.bind(this);
     this.resetSelectedCarpark = this.resetSelectedCarpark.bind(this);
+    this.handleCarparkClicked = this.handleCarparkClicked.bind(this);
 
     this.updateCarparksWithinRadius = debounce(
       500,
@@ -330,11 +334,21 @@ class MainPage extends React.Component<any, IMainPageState> {
     this.setState({ showFavourites: !this.state.showFavourites });
   }
 
+  handleCarparkClicked(carpark: Carpark) {
+    this.setState({
+      selectedLatLng: {
+        lat: carpark.latitude,
+        lng: carpark.longitude,
+      },
+    });
+  }
+
   renderCarparks(carparks: Carpark[]) {
     console.log(carparks);
     return carparks.map(carpark => (
       <CarparkInfo
         key={carpark.carparkId}
+        handleClicked={this.handleCarparkClicked}
         selectedOnMap={
           this.state.selectedId !== undefined &&
           this.state.selectedId === carpark.carparkId
@@ -449,6 +463,7 @@ class MainPage extends React.Component<any, IMainPageState> {
             handleMarkerClick={this.scrollToCarparkInfo}
             handleInfoWindowClose={this.resetSelectedCarpark}
             location={this.state.location}
+            currentLatLng={this.state.selectedLatLng}
             radius={this.state.radius === "" ? 0 : parseInt(this.state.radius)}
             markers={this.state.carparks}
           />

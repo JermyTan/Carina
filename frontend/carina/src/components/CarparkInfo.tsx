@@ -19,6 +19,7 @@ interface ICarparkInfoProps {
   isFavourited: boolean;
   selectedOnMap: boolean;
   innerRef: any;
+  handleClicked: any;
 }
 
 const GOOGLE_MAP_REDIR_URL_PREFIX =
@@ -105,7 +106,11 @@ class CarparkInfo extends React.Component<
       this.props.carpark.longitude,
     ].join("");
     return (
-      <div ref={this.props.innerRef} className="info-wrapper">
+      <div
+        onClick={() => this.props.handleClicked(this.props.carpark)}
+        ref={this.props.innerRef}
+        className="info-wrapper"
+      >
         <div
           className={`info card ${this.props.selectedOnMap ? "selected" : ""}`}
         >
