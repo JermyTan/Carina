@@ -170,7 +170,7 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
             isOnline={false}
           />
         </div>
-        <Snackbar message="The application is currently offline. Please connect to the internet for full functionality." />
+        <Snackbar message="The application is currently offline. Please connect to the internet for full functionality. Data shown will be outdated." />
       </div>
     );
   }
