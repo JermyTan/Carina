@@ -36,7 +36,7 @@ class CarparkInfo extends React.Component<
     this.state = {
       isExpanded: false,
       isFavourited: this.props.isFavourited,
-      histogramData: HistogramData
+      histogramData: HistogramData,
     };
 
     this.handleExpand = this.handleExpand.bind(this);
@@ -50,7 +50,7 @@ class CarparkInfo extends React.Component<
     Axios.get(
       `${process.env.REACT_APP_BACKEND_API}public/carpark-availability/statistics?carpark_id=${this.props.carpark.carparkId}&days=${currentDay}&lotTypes=C`
     ).then(response => {
-      if (response.status == 200) {
+      if (response.status === 200) {
         const data: any = response.data[0];
         const histogram: any = [];
         for (let i = 0; i < data.length; i++) {
@@ -58,7 +58,7 @@ class CarparkInfo extends React.Component<
           let hourlyData = {
             hour: parseInt(temp.hour),
             timeLabel: temp.timeLabel,
-            lots: parseInt(temp.availableLots)
+            lots: parseInt(temp.availableLots),
           };
           histogram.push(hourlyData);
         }
@@ -139,7 +139,7 @@ class CarparkInfo extends React.Component<
       GOOGLE_MAP_REDIR_URL_PREFIX,
       this.props.carpark.latitude,
       "+",
-      this.props.carpark.longitude
+      this.props.carpark.longitude,
     ].join("");
     return (
       <div

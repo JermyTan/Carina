@@ -1,6 +1,5 @@
 import React from "react";
 
-import firebase, { auth } from "../firebase";
 import "styles/CarparkInfo.scss";
 import { Carpark } from "../utils/Types";
 
@@ -20,7 +19,7 @@ class OfflineCarparkInfo extends React.Component<
   constructor(props: IOfflineCarparkInfoProps) {
     super(props);
     this.state = {
-      isFavourited: this.props.isFavourited
+      isFavourited: this.props.isFavourited,
     };
   }
 

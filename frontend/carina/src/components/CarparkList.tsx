@@ -24,16 +24,16 @@ class CarparkList extends React.Component<ICarparkListProps, any> {
   }
 
   shouldComponentUpdate(nextProps: ICarparkListProps, nextState: any) {
-    if (this.props.user != nextProps.user) {
+    if (this.props.user !== nextProps.user) {
       return true;
     }
-    if (this.props.showFavourites != nextProps.showFavourites) {
+    if (this.props.showFavourites !== nextProps.showFavourites) {
       return true;
     } else if (this.props.showFavourites) {
-      if (this.props.favouritedCarparkIds != nextProps.favouritedCarparkIds) {
+      if (this.props.favouritedCarparkIds !== nextProps.favouritedCarparkIds) {
         return true;
       }
-    } else if (this.props.nearbyCarparks != nextProps.nearbyCarparks) {
+    } else if (this.props.nearbyCarparks !== nextProps.nearbyCarparks) {
       return true;
     }
     return false;
@@ -55,7 +55,7 @@ class CarparkList extends React.Component<ICarparkListProps, any> {
           }
           innerRef={this.props.refs[carpark.carparkId]}
           carpark={carpark}
-          showFavourite={this.props.user != null}
+          showFavourite={this.props.user !== null}
           isFavourited={carpark.carparkId in this.props.favouritedCarparkIds}
         />
       ));

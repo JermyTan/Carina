@@ -14,7 +14,7 @@ class App extends React.Component<any, IAppState> {
 
     this.state = {
       isOnline: navigator.onLine,
-      isLoading: true
+      isLoading: true,
     };
 
     this.handleConnection = this.handleConnection.bind(this);
@@ -30,10 +30,10 @@ class App extends React.Component<any, IAppState> {
     if (navigator.onLine) {
       fetch(`${process.env.REACT_APP_BACKEND_API}public/version`, {
         method: "HEAD",
-        mode: "no-cors"
+        mode: "no-cors",
       })
         .then((response: any) => {
-          return response && (response.ok || response.type == "opaque");
+          return response && (response.ok || response.type === "opaque");
         })
         .then((isOnline: boolean) => {
           this.setState({ isOnline, isLoading: false });

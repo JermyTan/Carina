@@ -131,7 +131,7 @@ class MainPage extends React.Component<any, IMainPageState> {
             Axios.get(
               `${process.env.REACT_APP_BACKEND_API}public/carpark-availability/carpark-id?carparkIds=${carparkIds}&lotTypes=C`
             ).then(response => {
-              if (response.status == 200) {
+              if (response.status === 200) {
                 const favouritedCarparks = updateCarparksDistFromSrc(
                   mapEntriesToCarparks(Object.values(response.data), false),
                   this.state.location
@@ -154,8 +154,8 @@ class MainPage extends React.Component<any, IMainPageState> {
     Axios.get(
       `${process.env.REACT_APP_BACKEND_API}public/carpark-availability/nearest/queries?latitude=${location.lat}&longitude=${location.lng}&lotTypes=C&radius=${radius}`
     ).then(response => {
-      var nearbyCarparks;
-      if (response.status == 200) {
+      let nearbyCarparks;
+      if (response.status === 200) {
         nearbyCarparks = mapEntriesToCarparks(response.data, true);
         console.log("Backend: within radius", nearbyCarparks);
         //sorts by distance (nearest to furthers)
