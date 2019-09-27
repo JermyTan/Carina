@@ -336,7 +336,7 @@ class MainPage extends React.Component<any, IMainPageState> {
 
   render() {
     return (
-      <div className="row no-gutters">
+      <main className="row no-gutters">
         <div className="col-lg-7 left-col">
           {/* Start of form */}
           <form>
@@ -358,6 +358,8 @@ class MainPage extends React.Component<any, IMainPageState> {
                   <button
                     type="button"
                     className="btn btn-secondary"
+                    title="Request location access"
+                    aria-label="Request location access"
                     onClick={this.requestLocation}
                   >
                     <i className="fa fa-location-arrow" />
@@ -425,7 +427,7 @@ class MainPage extends React.Component<any, IMainPageState> {
             markers={this.state.carparks}
           />
         </div>
-      </div>
+      </main>
     );
   }
 }

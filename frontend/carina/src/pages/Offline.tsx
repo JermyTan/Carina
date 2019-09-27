@@ -112,7 +112,7 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
 
   render() {
     return (
-      <div className="row no-gutters offline-mode">
+      <main className="row no-gutters offline-mode">
         <div className="col-lg-12 left-col">
           {/* Start of form */}
           <form onSubmit={this.requestSearch}>
@@ -171,7 +171,7 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
           />
         </div>
         <Snackbar message="The application is currently offline. Please connect to the internet for full functionality. Data shown will be outdated." />
-      </div>
+      </main>
     );
   }
 }
