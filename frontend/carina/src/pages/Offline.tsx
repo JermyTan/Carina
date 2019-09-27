@@ -1,7 +1,7 @@
 import React from "react";
 import {
   LOCAL_STORAGE_CARPARKS,
-  LOCAL_STORAGE_FAVOURITED
+  LOCAL_STORAGE_FAVOURITED,
 } from "../utils/Constants";
 import CarparkList from "../components/CarparkList";
 import { Carpark } from "../utils/Types";
@@ -29,7 +29,7 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
       favouritedCarparks: [],
       favouritedCarparksIds: {},
       carparksToShow: [],
-      user: null
+      user: null,
     };
 
     this.requestSearch = this.requestSearch.bind(this);
@@ -57,7 +57,7 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
       const carparks = JSON.parse(allCarparks);
       this.setState({
         carparks,
-        carparksToShow: carparks
+        carparksToShow: carparks,
       });
       console.log("Local storage: everything", carparks);
     }
@@ -83,7 +83,8 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
     });
   }
 
-  requestSearch() {
+  requestSearch(event: any) {
+    event.preventDefault();
     const input = this.state.currentSearch.trim().toLowerCase();
     if (input) {
       const carparksToShow = this.state.carparks.filter((carpark: Carpark) => {
@@ -112,7 +113,7 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
   handleClear() {
     this.setState({
       currentSearch: "",
-      carparksToShow: this.state.carparks
+      carparksToShow: this.state.carparks,
     });
   }
 
@@ -137,7 +138,7 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
       <div className="row no-gutters">
         <div className="col-lg-7 left-col">
           {/* Start of form */}
-          <form>
+          <form onSubmit={this.requestSearch}>
             <div className="form-group">
               <label htmlFor="carparkInput">Search carparks</label>
               <div className="radius-login-wrapper">
