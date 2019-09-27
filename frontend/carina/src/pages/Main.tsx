@@ -2,7 +2,7 @@ import React, { createRef } from "react";
 import Axios from "axios";
 import GooglePlacesAutocomplete, {
   geocodeByPlaceId,
-  getLatLng
+  getLatLng,
   // @ts-ignore
 } from "react-google-places-autocomplete";
 // @ts-ignore
@@ -13,12 +13,12 @@ import CarparkList from "../components/CarparkList";
 import CarparkMap from "../components/CarparkMap";
 import {
   LOCAL_STORAGE_CARPARKS,
-  LOCAL_STORAGE_FAVOURITED
+  LOCAL_STORAGE_FAVOURITED,
 } from "../utils/Constants";
 import { Carpark, Point } from "../utils/Types";
 import {
   mapEntriesToCarparks,
-  updateCarparksDistFromSrc
+  updateCarparksDistFromSrc,
 } from "../utils/MainUtils";
 
 import "styles/Main.scss";
@@ -49,7 +49,7 @@ class MainPage extends React.Component<any, IMainPageState> {
 
     const point: Point = {
       lat: 1.2935861,
-      lng: 103.7844513
+      lng: 103.7844513,
     };
     this.state = {
       location: point,
@@ -63,7 +63,7 @@ class MainPage extends React.Component<any, IMainPageState> {
       favouritedCarparks: [],
       favouritedCarparkIds: {},
       nearbyCarparks: [],
-      refs: {}
+      refs: {},
     };
 
     this.handleRadiusChange = this.handleRadiusChange.bind(this);
@@ -100,7 +100,7 @@ class MainPage extends React.Component<any, IMainPageState> {
       if (response.status === 200) {
         const carparks = mapEntriesToCarparks(response.data, false);
         this.setState({
-          carparks
+          carparks,
         });
 
         localStorage.setItem(LOCAL_STORAGE_CARPARKS, JSON.stringify(carparks));
@@ -143,7 +143,7 @@ class MainPage extends React.Component<any, IMainPageState> {
           } else {
             this.setState({
               favouritedCarparks: [],
-              favouritedCarparkIds: {}
+              favouritedCarparkIds: {},
             });
           }
         });
@@ -173,10 +173,9 @@ class MainPage extends React.Component<any, IMainPageState> {
         this.setState({
           location,
           selectedLatLng: location,
-          radius,
           address,
           nearbyCarparks,
-          refs
+          refs,
         });
       }
     });
@@ -186,6 +185,7 @@ class MainPage extends React.Component<any, IMainPageState> {
     const value: string = event.target.value;
     if (value) {
       const radiusToSearch = parseInt(value) > 3000 ? "3000" : value;
+      this.setState({ radius: radiusToSearch });
       this.updateCarparksWithinRadius(
         this.state.location,
         radiusToSearch,
@@ -198,7 +198,7 @@ class MainPage extends React.Component<any, IMainPageState> {
 
   handleBlur() {
     this.setState({
-      radius: this.state.radius === "" ? "0" : this.state.radius
+      radius: this.state.radius === "" ? "0" : this.state.radius,
     });
   }
 
@@ -217,7 +217,7 @@ class MainPage extends React.Component<any, IMainPageState> {
 
   handleClear() {
     this.setState({
-      address: " "
+      address: " ",
     });
   }
 
@@ -227,7 +227,7 @@ class MainPage extends React.Component<any, IMainPageState> {
         const { latitude, longitude } = position.coords;
         const location = {
           lat: latitude,
-          lng: longitude
+          lng: longitude,
         } as Point;
         Geocode.fromLatLng(latitude, longitude).then((response: any) => {
           const address = response.results[0].formatted_address;
@@ -282,8 +282,8 @@ class MainPage extends React.Component<any, IMainPageState> {
     this.setState({
       selectedLatLng: {
         lat: carpark.latitude,
-        lng: carpark.longitude
-      }
+        lng: carpark.longitude,
+      },
     });
   }
 
@@ -293,18 +293,18 @@ class MainPage extends React.Component<any, IMainPageState> {
     if (this.state.refs[id]) {
       this.state.refs[id].current.scrollIntoView({
         behavior: "smooth",
-        block: "start"
+        block: "start",
       });
 
       this.setState({
-        selectedId: id
+        selectedId: id,
       });
     }
   }
 
   resetSelectedCarpark() {
     this.setState({
-      selectedId: undefined
+      selectedId: undefined,
     });
   }
 
@@ -346,7 +346,7 @@ class MainPage extends React.Component<any, IMainPageState> {
                 <GooglePlacesAutocomplete
                   inputClassName="form-control"
                   autocompletionRequest={{
-                    componentRestrictions: { country: "sg" }
+                    componentRestrictions: { country: "sg" },
                   }}
                   initialValue={this.state.address}
                   onSelect={this.handleSelectLocation}
