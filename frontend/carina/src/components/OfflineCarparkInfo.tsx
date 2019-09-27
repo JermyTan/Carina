@@ -2,8 +2,6 @@ import React from "react";
 
 import firebase, { auth } from "../firebase";
 import "styles/CarparkInfo.scss";
-import star from "../svgs/favourite.svg";
-import starFilled from "../svgs/favourited.svg";
 import { Carpark } from "../utils/Types";
 
 interface IOfflineCarparkInfoState {
@@ -95,12 +93,12 @@ class OfflineCarparkInfo extends React.Component<
               </h6>
             </div>
             {this.props.showFavourite && (
-              <div className="favourite ">
-                <img
-                  className="favourite-icon"
-                  src={this.state.isFavourited ? starFilled : star}
-                  onClick={this.handleFavourite}
-                />
+              <div className="favourite" onClick={this.handleFavourite}>
+                {this.state.isFavourited ? (
+                  <i className="fas fa-heart" />
+                ) : (
+                  <i className="far fa-heart" />
+                )}
               </div>
             )}
             <div className="carpark-lots">

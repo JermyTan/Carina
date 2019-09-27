@@ -78,6 +78,27 @@
   }
 }
 
+.search-bar-offline {
+  width: 75% !important;
+
+  .clear-input {
+    position: absolute;
+    right: 3em;
+    background: none;
+    top: 0;
+    bottom: 0;
+    color: #ccc;
+    border: none;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+    &:hover {
+      color: rgb(126, 126, 126);
+    }
+  }
+}
+
 .radius-input {
   width: 50% !important;
 }

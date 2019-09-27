@@ -3,7 +3,6 @@ import {
   LOCAL_STORAGE_CARPARKS,
   LOCAL_STORAGE_FAVOURITED
 } from "../utils/Constants";
-import LoginButton from "../components/LoginButton";
 import CarparkList from "../components/CarparkList";
 import { Carpark } from "../utils/Types";
 import { auth } from "../firebase";
@@ -99,7 +98,11 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
 
   handleSearchChange(event: React.ChangeEvent<HTMLInputElement>) {
     const value: string = event.target.value;
-    this.setState({ currentSearch: value });
+    if (value) {
+      this.setState({ currentSearch: value });
+    } else {
+      this.handleClear();
+    }
   }
 
   toggleFavourite() {
@@ -113,58 +116,72 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
     });
   }
 
+  renderLoginButton() {
+    if (this.state.user) {
+      return (
+        <div className="header-login">
+          <button
+            type="button"
+            className="btn btn-outline-secondary"
+            onClick={this.logout}
+          >
+            Log Out
+          </button>
+        </div>
+      );
+    }
+  }
+
   render() {
     return (
       <div className="row no-gutters">
         <div className="col-lg-7 left-col">
-          <div className="header">
-            <LoginButton
-              user={this.state.user}
-              logout={this.logout}
-              isOnline={false}
-            />
-          </div>
           {/* Start of form */}
           <form>
             <div className="form-group">
               <label htmlFor="carparkInput">Search carparks</label>
-              <div className="input-group mb-2 search-bar">
-                <input
-                  className="form-control"
-                  id="carparkInput"
-                  value={this.state.currentSearch}
-                  onChange={this.handleSearchChange}
-                />
-                <div className="input-group-append">
-                  <div className="clear-input" onClick={this.handleClear}>
-                    <i className="fa fa-times-circle" />
+              <div className="radius-login-wrapper">
+                <div className="input-group mb-2 search-bar-offline">
+                  <input
+                    className="form-control"
+                    id="carparkInput"
+                    value={this.state.currentSearch}
+                    onChange={this.handleSearchChange}
+                  />
+                  <div className="input-group-append">
+                    <div className="clear-input" onClick={this.handleClear}>
+                      <i className="fa fa-times-circle" />
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={this.requestSearch}
+                    >
+                      <i className="fa fa-search" />
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={this.requestSearch}
-                  >
-                    <i className="fa fa-search" />
-                  </button>
                 </div>
+                {this.renderLoginButton()}
               </div>
             </div>
           </form>
           {/* End of form */}
 
           <section className="carparks-header">
-            {!this.state.showFavourites && (
+            {this.state.showFavourites ? (
+              <div className="label">Showing favourites</div>
+            ) : (
               <div className="label">
                 {this.state.carparksToShow.length} carparks
               </div>
             )}
             {this.state.user && (
-              <button
-                className="toggle-favourite"
+              <i
                 onClick={this.toggleFavourite}
-              >
-                {this.state.showFavourites ? "Cancel" : "Show favourites"}
-              </button>
+                className={`toggle-favourite far fa-heart ${
+                  this.state.showFavourites ? "active" : ""
+                }`}
+              ></i>
             )}
           </section>
           <CarparkList

@@ -12,6 +12,7 @@ interface ICarparkListProps {
   favouritedCarparkIds: object;
   refs?: any;
   selectedId?: string;
+  handleClicked?: any;
   isOnline: boolean;
 }
 
@@ -47,6 +48,7 @@ class CarparkList extends React.Component<ICarparkListProps, any> {
       return carparksToShow.map(carpark => (
         <CarparkInfo
           key={carpark.carparkId}
+          handleClicked={this.props.handleClicked}
           selectedOnMap={
             this.props.selectedId !== undefined &&
             this.props.selectedId === carpark.carparkId

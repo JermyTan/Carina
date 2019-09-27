@@ -2,17 +2,15 @@ import React, { createRef } from "react";
 import Axios from "axios";
 import GooglePlacesAutocomplete, {
   geocodeByPlaceId,
-  getLatLng,
+  getLatLng
   // @ts-ignore
 } from "react-google-places-autocomplete";
 // @ts-ignore
 import Geocode from "react-geocode";
 import { debounce } from "throttle-debounce";
 import firebase, { auth, provider } from "../firebase";
-import LoginButton from "../components/LoginButton";
 import CarparkList from "../components/CarparkList";
 import CarparkMap from "../components/CarparkMap";
-import CarparkInfo from "../components/CarparkInfo";
 import {
   LOCAL_STORAGE_CARPARKS,
   LOCAL_STORAGE_FAVOURITED
@@ -25,7 +23,6 @@ import {
 } from "../utils/MainUtils";
 
 import "styles/Main.scss";
-import "styles/LoginButton.scss";
 
 Geocode.setApiKey(process.env.REACT_APP_GOOGLE_MAP_API_KEY);
 
@@ -53,7 +50,7 @@ class MainPage extends React.Component<any, IMainPageState> {
 
     const point: Point = {
       lat: 1.2935861,
-      lng: 103.7844513,
+      lng: 103.7844513
     };
     this.state = {
       location: point,
@@ -177,7 +174,14 @@ class MainPage extends React.Component<any, IMainPageState> {
         acc[carpark.carparkId] = createRef();
         return acc;
       }, {});
-      this.setState({ location, selectedLatLng: location, radius, address, nearbyCarparks, refs });
+      this.setState({
+        location,
+        selectedLatLng: location,
+        radius,
+        address,
+        nearbyCarparks,
+        refs
+      });
     });
   }
 
@@ -198,7 +202,7 @@ class MainPage extends React.Component<any, IMainPageState> {
 
   handleBlur() {
     this.setState({
-      radius: this.state.radius === "" ? "0" : this.state.radius,
+      radius: this.state.radius === "" ? "0" : this.state.radius
     });
   }
 
@@ -217,7 +221,7 @@ class MainPage extends React.Component<any, IMainPageState> {
 
   handleClear() {
     this.setState({
-      address: " ",
+      address: " "
     });
   }
 
@@ -227,7 +231,7 @@ class MainPage extends React.Component<any, IMainPageState> {
         const { latitude, longitude } = position.coords;
         const location = {
           lat: latitude,
-          lng: longitude,
+          lng: longitude
         } as Point;
         Geocode.fromLatLng(latitude, longitude).then((response: any) => {
           const address = response.results[0].formatted_address;
@@ -282,8 +286,8 @@ class MainPage extends React.Component<any, IMainPageState> {
     this.setState({
       selectedLatLng: {
         lat: carpark.latitude,
-        lng: carpark.longitude,
-      },
+        lng: carpark.longitude
+      }
     });
   }
 
@@ -293,21 +297,21 @@ class MainPage extends React.Component<any, IMainPageState> {
     if (this.state.refs[id]) {
       this.state.refs[id].current.scrollIntoView({
         behavior: "smooth",
-        block: "start",
+        block: "start"
       });
 
       this.setState({
-        selectedId: id,
+        selectedId: id
       });
     }
   }
 
   resetSelectedCarpark() {
     this.setState({
-      selectedId: undefined,
+      selectedId: undefined
     });
   }
-  
+
   renderLoginButton() {
     if (this.state.user) {
       return (
@@ -346,7 +350,7 @@ class MainPage extends React.Component<any, IMainPageState> {
                 <GooglePlacesAutocomplete
                   inputClassName="form-control"
                   autocompletionRequest={{
-                    componentRestrictions: { country: "sg" },
+                    componentRestrictions: { country: "sg" }
                   }}
                   initialValue={this.state.address}
                   onSelect={this.handleSelectLocation}
@@ -401,7 +405,8 @@ class MainPage extends React.Component<any, IMainPageState> {
                 }`}
               ></i>
             )}
-            </div>
+          </div>
+
           <CarparkList
             user={this.state.user}
             showFavourites={this.state.showFavourites}
@@ -410,8 +415,10 @@ class MainPage extends React.Component<any, IMainPageState> {
             favouritedCarparkIds={this.state.favouritedCarparkIds}
             refs={this.state.refs}
             selectedId={this.state.selectedId}
+            handleClicked={this.handleCarparkClicked}
             isOnline={true}
           />
+        </div>
         <div className="map-wrapper col-lg-5">
           <CarparkMap
             handleMarkerClick={this.scrollToCarparkInfo}
