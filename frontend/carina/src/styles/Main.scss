@@ -41,6 +41,7 @@
 
   @media screen and (max-width: 992px) {
     height: 60vh;
+    padding: 0.5em 1em !important;
   }
 }
 
@@ -109,4 +110,8 @@
 .radius-login-wrapper {
   display: flex;
   justify-content: space-between;
+}
+
+.form-group {
+  margin-bottom: 0;
 }
