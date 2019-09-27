@@ -22,7 +22,7 @@ interface ICarparkInfoProps {
 }
 
 const GOOGLE_MAP_REDIR_URL_PREFIX =
-  "https://www.google.com/maps/search/?api=1&query=";
+  "http://maps.google.com/maps?z=12&t=m&q=loc:";
 
 class CarparkInfo extends React.Component<
   ICarparkInfoProps,
@@ -100,9 +100,9 @@ class CarparkInfo extends React.Component<
   render() {
     const redirectionUrl = [
       GOOGLE_MAP_REDIR_URL_PREFIX,
-      this.props.carpark.longitude,
-      ",",
       this.props.carpark.latitude,
+      "+",
+      this.props.carpark.longitude,
     ].join("");
     return (
       <div ref={this.props.innerRef} className="info-wrapper">
