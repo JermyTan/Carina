@@ -8,10 +8,14 @@ import GooglePlacesAutocomplete, {
 // @ts-ignore
 import Geocode from "react-geocode";
 import firebase, { auth, provider } from "../firebase";
-
+import LoginButton from "../components/LoginButton";
+import CarparkList from "../components/CarparkList";
 import CarparkMap from "../components/CarparkMap";
 import CarparkInfo from "../components/CarparkInfo";
-import { LOCAL_STORAGE_CARPARKS } from "../utils/Constants";
+import {
+  LOCAL_STORAGE_CARPARKS,
+  LOCAL_STORAGE_FAVOURITED
+} from "../utils/Constants";
 import { Carpark, Point } from "../utils/Types";
 import {
   withinRadius,
@@ -20,6 +24,7 @@ import {
 } from "../utils/MainUtils";
 
 import "styles/Main.scss";
+import "styles/LoginButton.scss";
 
 Geocode.setApiKey(process.env.REACT_APP_GOOGLE_MAP_API_KEY);
 
@@ -33,7 +38,7 @@ interface IMainPageState {
   showFavourites: boolean;
   favouritedCarparks: Carpark[];
   favouritedCarparkIds: object;
-  carparksToShow: Carpark[];
+  nearbyCarparks: Carpark[];
 
   // refs for use in scrolling
   refs: any;
@@ -57,7 +62,7 @@ class MainPage extends React.Component<any, IMainPageState> {
       showFavourites: false,
       favouritedCarparks: [],
       favouritedCarparkIds: {},
-      carparksToShow: [],
+      nearbyCarparks: [],
       refs: {}
     };
 
@@ -71,50 +76,40 @@ class MainPage extends React.Component<any, IMainPageState> {
     this.handleClear = this.handleClear.bind(this);
     this.scrollToCarparkInfo = this.scrollToCarparkInfo.bind(this);
     this.resetSelectedCarpark = this.resetSelectedCarpark.bind(this);
+    this.updateCarparksWithinRadius = this.updateCarparksWithinRadius.bind(
+      this
+    );
   }
 
   componentDidMount() {
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        this.setState({ user });
-        this.retrieveFavouritedCarparks();
-      }
-    });
+    if (!this.state.user) {
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          this.setState({ user });
+          this.retrieveFavouritedCarparks();
+        }
+      });
+    }
 
     // Retrieve carparks from backend and update localStorage
     Axios.get(
       `${process.env.REACT_APP_BACKEND_API}public/carpark-availability/latest`
-    )
-      .then(response => {
-        if (response.status === 200) {
-          const carparks = mapEntriesToCarparks(response.data, false);
-          this.setState({
-            carparks
-          });
+    ).then(response => {
+      if (response.status === 200) {
+        const carparks = mapEntriesToCarparks(response.data, false);
+        this.setState({
+          carparks
+        });
 
-          localStorage.setItem(
-            LOCAL_STORAGE_CARPARKS,
-            JSON.stringify(carparks)
-          );
-          console.log("Backend: everything", carparks);
-        } else {
-          const carparks = localStorage.getItem(LOCAL_STORAGE_CARPARKS);
-          // If is offline, retrieve from local storage
-          if (carparks) {
-            this.setState({
-              carparks: JSON.parse(carparks)
-            });
-            console.log("Local storage: everything", carparks);
-          }
-        }
-      })
-      .then(() => {
-        this.updateCarparksWithinRadius(
-          this.state.location,
-          this.state.radius,
-          this.state.address
-        );
-      });
+        localStorage.setItem(LOCAL_STORAGE_CARPARKS, JSON.stringify(carparks));
+        console.log("Backend: everything", carparks);
+      }
+    });
+    this.updateCarparksWithinRadius(
+      this.state.location,
+      this.state.radius,
+      this.state.address
+    );
   }
 
   retrieveFavouritedCarparks() {
@@ -126,6 +121,10 @@ class MainPage extends React.Component<any, IMainPageState> {
         .on("value", data => {
           const favouritedCarparkIds = data.val();
           if (favouritedCarparkIds) {
+            localStorage.setItem(
+              LOCAL_STORAGE_FAVOURITED,
+              JSON.stringify(favouritedCarparkIds)
+            );
             const carparkIds = Object.keys(favouritedCarparkIds).join(",");
             Axios.get(
               `${process.env.REACT_APP_BACKEND_API}public/carpark-availability/carpark-id?carparkIds=${carparkIds}&lotTypes=C`
@@ -153,26 +152,26 @@ class MainPage extends React.Component<any, IMainPageState> {
     Axios.get(
       `${process.env.REACT_APP_BACKEND_API}public/carpark-availability/nearest/queries?latitude=${location.lat}&longitude=${location.lng}&lotTypes=C&radius=${radius}`
     ).then(response => {
-      var carparksToShow;
+      var nearbyCarparks;
       if (response.status == 200) {
-        carparksToShow = mapEntriesToCarparks(response.data, true);
-        console.log("Backend: within radius", carparksToShow);
+        nearbyCarparks = mapEntriesToCarparks(response.data, true);
+        console.log("Backend: within radius", nearbyCarparks);
       } else {
-        carparksToShow = this.state.carparks.filter((carpark: Carpark) => {
+        nearbyCarparks = this.state.carparks.filter((carpark: Carpark) => {
           withinRadius(carpark, location, parseInt(radius));
         });
-        console.log("Local storage: within radius", carparksToShow);
+        console.log("Local storage: within radius", nearbyCarparks);
       }
       //sorts by distance (nearest to furthers)
-      carparksToShow.sort(
+      nearbyCarparks.sort(
         (carpark1: Carpark, carpark2: Carpark) =>
           carpark1.distFromSrc - carpark2.distFromSrc
       );
-      const refs: any = carparksToShow.reduce((acc: any, carpark: Carpark) => {
+      const refs: any = nearbyCarparks.reduce((acc: any, carpark: Carpark) => {
         acc[carpark.carparkId] = createRef();
         return acc;
       }, {});
-      this.setState({ location, radius, address, carparksToShow, refs });
+      this.setState({ location, radius, address, nearbyCarparks, refs });
     });
   }
 
@@ -262,52 +261,13 @@ class MainPage extends React.Component<any, IMainPageState> {
 
   login() {
     auth.signInWithPopup(provider).then(result => {
-      const user = result.user;
-      this.setState({ user });
-      console.log("signed in", user);
+      this.setState({ user: result.user });
+      console.log("signed in");
     });
-  }
-
-  renderLoginButton() {
-    if (this.state.user) {
-      return (
-        <div className="header-login">
-          <button className="button" onClick={this.logout}>
-            Log Out
-          </button>
-          <div className="displayName">
-            You are currently signed in as {this.state.user.displayName}.
-          </div>
-        </div>
-      );
-    } else {
-      return (
-        <button className="button" onClick={this.login}>
-          Log In
-        </button>
-      );
-    }
   }
 
   toggleFavourite() {
     this.setState({ showFavourites: !this.state.showFavourites });
-  }
-
-  renderCarparks(carparks: Carpark[]) {
-    console.log("Rendered carparks", carparks);
-    return carparks.map(carpark => (
-      <CarparkInfo
-        key={carpark.carparkId}
-        selectedOnMap={
-          this.state.selectedId !== undefined &&
-          this.state.selectedId === carpark.carparkId
-        }
-        innerRef={this.state.refs[carpark.carparkId]}
-        carpark={carpark}
-        showFavourite={this.state.user != null}
-        isFavourited={carpark.carparkId in this.state.favouritedCarparkIds}
-      />
-    ));
   }
 
   scrollToCarparkInfo(id: string) {
@@ -331,7 +291,14 @@ class MainPage extends React.Component<any, IMainPageState> {
     return (
       <div className="row no-gutters">
         <div className="col-lg-7 left-col">
-          <div className="header">{this.renderLoginButton()}</div>
+          <div className="header">
+            <LoginButton
+              user={this.state.user}
+              logout={this.logout}
+              login={this.login}
+              isOnline={true}
+            />
+          </div>
           {/* Start of form */}
           <form>
             <div className="form-group">
@@ -378,7 +345,7 @@ class MainPage extends React.Component<any, IMainPageState> {
           <section className="carparks-header">
             {!this.state.showFavourites && (
               <div className="label">
-                {this.state.carparksToShow.length} carparks within radius
+                {this.state.nearbyCarparks.length} carparks within radius
               </div>
             )}
             {this.state.user && (
@@ -390,13 +357,16 @@ class MainPage extends React.Component<any, IMainPageState> {
               </button>
             )}
           </section>
-          <div className="carparks">
-            {this.renderCarparks(
-              this.state.showFavourites
-                ? this.state.favouritedCarparks
-                : this.state.carparksToShow
-            )}
-          </div>
+          <CarparkList
+            user={this.state.user}
+            showFavourites={this.state.showFavourites}
+            nearbyCarparks={this.state.nearbyCarparks}
+            favouritedCarparks={this.state.favouritedCarparks}
+            favouritedCarparkIds={this.state.favouritedCarparkIds}
+            refs={this.state.refs}
+            selectedId={this.state.selectedId}
+            isOnline={true}
+          />
         </div>
         <div className="map-wrapper col-lg-5">
           <CarparkMap
@@ -412,3 +382,12 @@ class MainPage extends React.Component<any, IMainPageState> {
 }
 
 export default MainPage;
+/*
+<div className="carparks">
+            {this.renderCarparks(
+              this.state.showFavourites
+                ? this.state.favouritedCarparks
+                : this.state.carparksToShow
+            )}
+          </div>
+          */

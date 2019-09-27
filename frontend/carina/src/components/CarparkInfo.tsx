@@ -42,9 +42,11 @@ class CarparkInfo extends React.Component<
 
     this.handleExpand = this.handleExpand.bind(this);
     this.handleFavourite = this.handleFavourite.bind(this);
+    this.updateHistogramData = this.updateHistogramData.bind(this);
+    this.toggleExpand = this.toggleExpand.bind(this);
   }
 
-  componentDidMount() {
+  updateHistogramData() {
     const currentDay = new Date().getDay();
     Axios.get(
       `${process.env.REACT_APP_BACKEND_API}public/carpark-availability/statistics?carpark_id=${this.props.carpark.carparkId}&days=${currentDay}&lotTypes=C`
@@ -67,8 +69,16 @@ class CarparkInfo extends React.Component<
     });
   }
 
-  handleExpand() {
-    this.setState({ isExpanded: !this.state.isExpanded });
+  toggleExpand() {
+    this.handleExpand().then(() =>
+      this.setState({ isExpanded: !this.state.isExpanded })
+    );
+  }
+
+  async handleExpand() {
+    if (!this.state.isExpanded) {
+      this.updateHistogramData();
+    }
   }
 
   handleFavourite() {
@@ -182,7 +192,7 @@ class CarparkInfo extends React.Component<
               <HistogramChart data={this.state.histogramData} />
             </div>
           )}
-          <div className="expansion-wrapper" onClick={this.handleExpand}>
+          <div className="expansion-wrapper" onClick={this.toggleExpand}>
             {this.state.isExpanded ? <ExpandLessSvg /> : <ExpandMoreSvg />}
           </div>
         </div>

@@ -3,7 +3,8 @@ import {
   LOCAL_STORAGE_CARPARKS,
   LOCAL_STORAGE_FAVOURITED
 } from "../utils/Constants";
-import OfflineCarparkInfo from "../components/OfflineCarparkInfo";
+import LoginButton from "../components/LoginButton";
+import CarparkList from "../components/CarparkList";
 import { Carpark } from "../utils/Types";
 import { auth } from "../firebase";
 import "styles/Main.scss";
@@ -83,21 +84,6 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
     });
   }
 
-  renderLoginButton() {
-    if (this.state.user) {
-      return (
-        <div className="header-login">
-          <button className="button" onClick={this.logout}>
-            Log Out
-          </button>
-          <div className="displayName">
-            You are currently signed in as {this.state.user.displayName}.
-          </div>
-        </div>
-      );
-    }
-  }
-
   requestSearch() {
     const input = this.state.currentSearch.trim().toLowerCase();
     if (input) {
@@ -120,18 +106,6 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
     this.setState({ showFavourites: !this.state.showFavourites });
   }
 
-  renderCarparks(carparks: Carpark[]) {
-    console.log("Rendered carparks", carparks);
-    return carparks.map(carpark => (
-      <OfflineCarparkInfo
-        key={carpark.carparkId}
-        carpark={carpark}
-        showFavourite={this.state.user != null}
-        isFavourited={carpark.carparkId in this.state.favouritedCarparksIds}
-      />
-    ));
-  }
-
   handleClear() {
     this.setState({
       currentSearch: "",
@@ -143,11 +117,17 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
     return (
       <div className="row no-gutters">
         <div className="col-lg-7 left-col">
-          <div className="header">{this.renderLoginButton()}</div>
+          <div className="header">
+            <LoginButton
+              user={this.state.user}
+              logout={this.logout}
+              isOnline={false}
+            />
+          </div>
           {/* Start of form */}
           <form>
             <div className="form-group">
-              <label htmlFor="carparkInput">Search radius</label>
+              <label htmlFor="carparkInput">Search carparks</label>
               <div className="input-group mb-2 search-bar">
                 <input
                   className="form-control"
@@ -187,13 +167,14 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
               </button>
             )}
           </section>
-          <div className="carparks">
-            {this.renderCarparks(
-              this.state.showFavourites
-                ? this.state.favouritedCarparks
-                : this.state.carparksToShow
-            )}
-          </div>
+          <CarparkList
+            user={this.state.user}
+            showFavourites={this.state.showFavourites}
+            nearbyCarparks={this.state.carparksToShow}
+            favouritedCarparks={this.state.favouritedCarparks}
+            favouritedCarparkIds={this.state.favouritedCarparksIds}
+            isOnline={false}
+          />
         </div>
       </div>
     );

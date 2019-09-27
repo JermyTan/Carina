@@ -6,122 +6,122 @@ export const HistogramData = [
   {
     hour: 0,
     timeLabel: "12m",
-    lots: 53
+    lots: 0
   },
   {
     hour: 1,
     timeLabel: "1a",
-    lots: 100
+    lots: 0
   },
   {
     hour: 2,
     timeLabel: "2a",
-    lots: 19
+    lots: 0
   },
   {
     hour: 3,
     timeLabel: "3a",
-    lots: 70
+    lots: 0
   },
   {
     hour: 4,
     timeLabel: "4a",
-    lots: 100
+    lots: 0
   },
   {
     hour: 5,
     timeLabel: "5a",
-    lots: 80
+    lots: 0
   },
   {
     hour: 6,
     timeLabel: "6a",
-    lots: 100
+    lots: 0
   },
   {
     hour: 7,
     timeLabel: "7a",
-    lots: 80
+    lots: 0
   },
   {
     hour: 8,
     timeLabel: "8a",
-    lots: 70
+    lots: 0
   },
   {
     hour: 9,
     timeLabel: "9a",
-    lots: 53
+    lots: 0
   },
   {
     hour: 10,
     timeLabel: "10a",
-    lots: 100
+    lots: 0
   },
   {
     hour: 11,
     timeLabel: "11a",
-    lots: 80
+    lots: 0
   },
   {
     hour: 12,
     timeLabel: "12p",
-    lots: 70
+    lots: 0
   },
   {
     hour: 13,
     timeLabel: "1p",
-    lots: 13
+    lots: 0
   },
   {
     hour: 14,
     timeLabel: "2p",
-    lots: 70
+    lots: 0
   },
   {
     hour: 15,
     timeLabel: "3p",
-    lots: 53
+    lots: 0
   },
   {
     hour: 16,
     timeLabel: "4p",
-    lots: 70
+    lots: 0
   },
   {
     hour: 17,
     timeLabel: "5p",
-    lots: 53
+    lots: 0
   },
   {
     hour: 18,
     timeLabel: "6p",
-    lots: 70
+    lots: 0
   },
   {
     hour: 19,
     timeLabel: "7p",
-    lots: 53
+    lots: 0
   },
   {
     hour: 20,
     timeLabel: "8p",
-    lots: 70
+    lots: 0
   },
   {
     hour: 21,
     timeLabel: "9p",
-    lots: 53
+    lots: 0
   },
   {
     hour: 22,
     timeLabel: "10p",
-    lots: 70
+    lots: 0
   },
   {
     hour: 23,
     timeLabel: "11p",
-    lots: 53
+    lots: 0
   }
 ];
 

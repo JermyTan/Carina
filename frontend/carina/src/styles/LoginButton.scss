@@ -1,0 +1,17 @@
+.header {
+  margin-bottom: 0.5em;
+  font-size: 0.75em;
+
+  .header-login {
+    display: flex;
+    align-items: center;
+
+    .displayName {
+      margin-left: 1em;
+    }
+  }
+
+  .button {
+    border-radius: 0.25em;
+  }
+}
