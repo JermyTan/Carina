@@ -106,6 +106,12 @@
 
 .elab-wrapper {
   border-top: 1px solid rgba(0, 0, 0, 0.125);
+  justify-content: space-between;
+
+  .past-data-label {
+    font-weight: bold;
+    font-size: 1.1em;
+  }
 }
 
 .directions-wrapper {

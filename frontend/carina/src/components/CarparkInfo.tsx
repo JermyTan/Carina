@@ -177,7 +177,14 @@ class CarparkInfo extends React.Component<
               <div className="card-subtitle text-muted">lots left</div>
             </div>
           </div>
-          <div className="card-body d-flex no-gutters justify-content-end elab-wrapper">
+          <div
+            className={`card-body d-flex no-gutters ${
+              this.state.isExpanded ? "" : "justify-content-end"
+            } elab-wrapper`}
+          >
+            {this.state.isExpanded && (
+              <div className="past-data-label">Historical lot counts</div>
+            )}
             <div className="d-flex distance-info">
               <span>{this.props.carpark.distFromSrc} m</span>
               <a
