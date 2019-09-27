@@ -304,17 +304,22 @@ class MainPage extends React.Component<any, IMainPageState> {
     if (this.state.user) {
       return (
         <div className="header-login">
-          <button className="button" onClick={this.logout}>
+          <button
+            type="button"
+            className="btn btn-outline-secondary"
+            onClick={this.logout}
+          >
             Log Out
           </button>
-          <div className="displayName">
-            You are currently signed in as {this.state.user.displayName}.
-          </div>
         </div>
       );
     } else {
       return (
-        <button className="button" onClick={this.login}>
+        <button
+          type="button"
+          className="btn btn-outline-secondary"
+          onClick={this.login}
+        >
           Log In
         </button>
       );
@@ -350,6 +355,10 @@ class MainPage extends React.Component<any, IMainPageState> {
         behavior: "smooth",
         block: "start",
       });
+
+      this.setState({
+        selectedId: id,
+      });
     }
   }
 
@@ -363,10 +372,10 @@ class MainPage extends React.Component<any, IMainPageState> {
     return (
       <div className="row no-gutters">
         <div className="col-lg-7 left-col">
-          <div className="header">{this.renderLoginButton()}</div>
           {/* Start of form */}
           <form>
             <div className="form-group">
+              <label htmlFor="google-places-autocomplete-input">Location</label>
               <div className="input-group mb-2 search-bar">
                 <GooglePlacesAutocomplete
                   inputClassName="form-control"
@@ -378,7 +387,7 @@ class MainPage extends React.Component<any, IMainPageState> {
                 />
                 <div className="input-group-append">
                   <div className="clear-input" onClick={this.handleClear}>
-                    <i className="fa fa-times-circle" />
+                    <i className="fas fa-times-circle" />
                   </div>
                   <button
                     type="button"
@@ -390,38 +399,43 @@ class MainPage extends React.Component<any, IMainPageState> {
                 </div>
               </div>
               <label htmlFor="radiusInput">Search radius</label>
-              <div className="input-group mb-2">
-                <input
-                  className="form-control"
-                  id="radiusInput"
-                  type="number"
-                  value={this.state.radius}
-                  onChange={this.handleRadiusChange}
-                  onBlur={this.handleBlur}
-                />
-                <div className="input-group-append">
-                  <div className="input-group-text">metres</div>
+              <div className="radius-login-wrapper">
+                <div className="input-group mb-2 radius-input">
+                  <input
+                    className="form-control"
+                    id="radiusInput"
+                    type="number"
+                    value={this.state.radius}
+                    onChange={this.handleRadiusChange}
+                    onBlur={this.handleBlur}
+                  />
+                  <div className="input-group-append">
+                    <div className="input-group-text">metres</div>
+                  </div>
                 </div>
+                <div>{this.renderLoginButton()}</div>
               </div>
             </div>
           </form>
           {/* End of form */}
 
-          <section className="carparks-header">
-            {!this.state.showFavourites && (
+          <div className="carparks-header">
+            {this.state.showFavourites ? (
+              <div className="label">Showing favourites</div>
+            ) : (
               <div className="label">
                 {this.state.carparksToShow.length} carparks within radius
               </div>
             )}
             {this.state.user && (
-              <button
-                className="toggle-favourite"
+              <i
                 onClick={this.toggleFavourite}
-              >
-                {this.state.showFavourites ? "Cancel" : "Show favourites"}
-              </button>
+                className={`toggle-favourite far fa-heart ${
+                  this.state.showFavourites ? "active" : ""
+                }`}
+              ></i>
             )}
-          </section>
+          </div>
           <div className="carparks">
             {this.renderCarparks(
               this.state.showFavourites
@@ -433,6 +447,7 @@ class MainPage extends React.Component<any, IMainPageState> {
         <div className="map-wrapper col-lg-5">
           <CarparkMap
             handleMarkerClick={this.scrollToCarparkInfo}
+            handleInfoWindowClose={this.resetSelectedCarpark}
             location={this.state.location}
             radius={this.state.radius === "" ? 0 : parseInt(this.state.radius)}
             markers={this.state.carparks}

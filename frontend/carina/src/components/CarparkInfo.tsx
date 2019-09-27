@@ -5,8 +5,6 @@ import "styles/CarparkInfo.scss";
 import ExpandMoreSvg from "./svgrs/ExpandMoreSvg";
 import ExpandLessSvg from "./svgrs/ExpandLessSvg";
 import DirectionsSvg from "./svgrs/DirectionsSvg";
-import star from "../svgs/favourite.svg";
-import starFilled from "../svgs/favourited.svg";
 import HistogramChart, { HistogramData } from "./HistogramChart";
 import { Carpark } from "../utils/Types";
 
@@ -34,7 +32,7 @@ class CarparkInfo extends React.Component<
     super(props);
     this.state = {
       isExpanded: false,
-      isFavourited: this.props.isFavourited
+      isFavourited: this.props.isFavourited,
     };
 
     this.handleExpand = this.handleExpand.bind(this);
@@ -104,7 +102,7 @@ class CarparkInfo extends React.Component<
       GOOGLE_MAP_REDIR_URL_PREFIX,
       this.props.carpark.longitude,
       ",",
-      this.props.carpark.latitude
+      this.props.carpark.latitude,
     ].join("");
     return (
       <div ref={this.props.innerRef} className="info-wrapper">
@@ -119,12 +117,12 @@ class CarparkInfo extends React.Component<
               </h6>
             </div>
             {this.props.showFavourite && (
-              <div className="favourite ">
-                <img
-                  className="favourite-icon"
-                  src={this.state.isFavourited ? starFilled : star}
-                  onClick={this.handleFavourite}
-                />
+              <div className="favourite" onClick={this.handleFavourite}>
+                {this.state.isFavourited ? (
+                  <i className="fas fa-heart" />
+                ) : (
+                  <i className="far fa-heart" />
+                )}
               </div>
             )}
             <div className="carpark-lots">

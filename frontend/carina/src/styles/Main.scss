@@ -53,7 +53,9 @@
 
 .carparks-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.3em;
 
   .label {
     font-weight: bold;
@@ -61,8 +63,17 @@
   }
 
   .toggle-favourite {
-    border-radius: 0.25em;
-    margin-left: auto;
+    font-size: 1.5rem;
+    cursor: pointer;
+
+    &.active {
+      color: #f15f79;
+    }
+
+    &:hover,
+    &:focus {
+      color: #c73c55;
+    }
   }
 }
 
@@ -89,4 +100,13 @@
       padding-right: 2em;
     }
   }
+}
+
+.radius-input {
+  width: 50% !important;
+}
+
+.radius-login-wrapper {
+  display: flex;
+  justify-content: space-between;
 }
