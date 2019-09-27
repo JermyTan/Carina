@@ -4,7 +4,7 @@ import {
   GoogleApiWrapper,
   Marker,
   Circle,
-  InfoWindow
+  InfoWindow,
 } from "google-maps-react";
 // @ts-ignore
 import MarkerClusterer from "@google/markerclustererplus";
@@ -32,7 +32,7 @@ interface ICarparkMapState {
 
 const mapStyles = {
   width: "100%",
-  height: "100%"
+  height: "100%",
 };
 
 class CarparkMap extends Component<ICarparkMapProps, ICarparkMapState> {
@@ -43,7 +43,7 @@ class CarparkMap extends Component<ICarparkMapProps, ICarparkMapState> {
       showingInfoWindow: false,
       activeMarker: {},
       selectedPlace: {},
-      map: null
+      map: null,
     };
   }
 
@@ -59,7 +59,7 @@ class CarparkMap extends Component<ICarparkMapProps, ICarparkMapState> {
     this.setState({
       activeMarker: props.entry,
       selectedPlace: props.carpark,
-      showingInfoWindow: true
+      showingInfoWindow: true,
     });
 
     this.props.handleMarkerClick(props.carpark.carparkId);
@@ -69,7 +69,7 @@ class CarparkMap extends Component<ICarparkMapProps, ICarparkMapState> {
     if (this.state.showingInfoWindow) {
       this.setState({
         showingInfoWindow: false,
-        activeMarker: {}
+        activeMarker: {},
       });
     }
 
@@ -95,7 +95,7 @@ class CarparkMap extends Component<ICarparkMapProps, ICarparkMapState> {
           zoom={16}
           style={mapStyles}
           initialCenter={this.props.location}
-          center={this.props.location}
+          center={this.props.currentLatLng}
           streetViewControl={false}
           mapTypeControl={false}
           fullscreenControl={false}
@@ -163,7 +163,7 @@ const evtNames = [
   "mouseout",
   "mouseover",
   "mouseup",
-  "recenter"
+  "recenter",
 ];
 
 const MarkerCluster: React.FunctionComponent<any> = props => {
@@ -174,7 +174,7 @@ const MarkerCluster: React.FunctionComponent<any> = props => {
       props[event]({
         carpark,
         event,
-        entry
+        entry,
       });
     }
   };
@@ -188,9 +188,9 @@ const MarkerCluster: React.FunctionComponent<any> = props => {
         const entry = new google.maps.Marker({
           position: {
             lat: carpark.latitude,
-            lng: carpark.longitude
+            lng: carpark.longitude,
           },
-          map
+          map,
         });
 
         evtNames.forEach(event => {
@@ -198,7 +198,7 @@ const MarkerCluster: React.FunctionComponent<any> = props => {
             handleEvent({
               event,
               carpark,
-              entry
+              entry,
             })
           );
         });
@@ -221,6 +221,6 @@ const MarkerCluster: React.FunctionComponent<any> = props => {
 
 export default GoogleApiWrapper({
   // NOTE: you must have a valid google map API key in your environmental variables
-  apiKey: process.env.REACT_APP_GOOGLE_MAP_API_KEY!
+  apiKey: process.env.REACT_APP_GOOGLE_MAP_API_KEY!,
   //@ts-ignore
 })(CarparkMap);

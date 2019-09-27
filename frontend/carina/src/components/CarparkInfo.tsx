@@ -5,8 +5,6 @@ import "styles/CarparkInfo.scss";
 import ExpandMoreSvg from "./svgrs/ExpandMoreSvg";
 import ExpandLessSvg from "./svgrs/ExpandLessSvg";
 import DirectionsSvg from "./svgrs/DirectionsSvg";
-import star from "../svgs/favourite.svg";
-import starFilled from "../svgs/favourited.svg";
 import HistogramChart, { HistogramData } from "./HistogramChart";
 import { Carpark } from "../utils/Types";
 import Axios from "axios";
@@ -23,10 +21,11 @@ interface ICarparkInfoProps {
   isFavourited: boolean;
   selectedOnMap: boolean;
   innerRef: any;
+  handleClicked: any;
 }
 
 const GOOGLE_MAP_REDIR_URL_PREFIX =
-  "https://www.google.com/maps/search/?api=1&query=";
+  "http://maps.google.com/maps?z=12&t=m&q=loc:";
 
 class CarparkInfo extends React.Component<
   ICarparkInfoProps,
@@ -138,12 +137,16 @@ class CarparkInfo extends React.Component<
   render() {
     const redirectionUrl = [
       GOOGLE_MAP_REDIR_URL_PREFIX,
+      this.props.carpark.latitude,
+      "+",
       this.props.carpark.longitude,
-      ",",
-      this.props.carpark.latitude
     ].join("");
     return (
-      <div ref={this.props.innerRef} className="info-wrapper">
+      <div
+        onClick={() => this.props.handleClicked(this.props.carpark)}
+        ref={this.props.innerRef}
+        className="info-wrapper"
+      >
         <div
           className={`info card ${this.props.selectedOnMap ? "selected" : ""}`}
         >
@@ -155,12 +158,12 @@ class CarparkInfo extends React.Component<
               </h6>
             </div>
             {this.props.showFavourite && (
-              <div className="favourite ">
-                <img
-                  className="favourite-icon"
-                  src={this.state.isFavourited ? starFilled : star}
-                  onClick={this.handleFavourite}
-                />
+              <div className="favourite" onClick={this.handleFavourite}>
+                {this.state.isFavourited ? (
+                  <i className="fas fa-heart" />
+                ) : (
+                  <i className="far fa-heart" />
+                )}
               </div>
             )}
             <div className="carpark-lots">
