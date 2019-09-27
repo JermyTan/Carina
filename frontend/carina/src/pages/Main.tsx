@@ -206,7 +206,13 @@ class MainPage extends React.Component<any, IMainPageState> {
         acc[carpark.carparkId] = createRef();
         return acc;
       }, {});
-      this.setState({ location, address, carparksToShow, refs });
+      this.setState({
+        location,
+        selectedLatLng: location,
+        address,
+        carparksToShow,
+        refs,
+      });
     });
   }
 
