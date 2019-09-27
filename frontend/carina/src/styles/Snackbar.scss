@@ -1,0 +1,17 @@
+.snackbar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: fit-content;
+  background: #f2eeed;
+  color: rgb(82, 82, 82);
+  padding: 0.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  i {
+    font-size: 1.2em;
+    padding: 0 0.5em;
+  }
+}

@@ -4,6 +4,7 @@ import {
   LOCAL_STORAGE_FAVOURITED,
 } from "../utils/Constants";
 import CarparkList from "../components/CarparkList";
+import Snackbar from "../components/Snackbar";
 import { Carpark } from "../utils/Types";
 import { auth } from "../firebase";
 import "styles/Main.scss";
@@ -169,6 +170,7 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
             isOnline={false}
           />
         </div>
+        <Snackbar message="The application is currently offline. Please connect to the internet for full functionality." />
       </div>
     );
   }
