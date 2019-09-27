@@ -986,6 +986,11 @@
   resolved "https://registry.yarnpkg.com/@firebase/webchannel-wrapper/-/webchannel-wrapper-0.2.26.tgz#4fe0e0a878d26af98901b29f051deed8017d6237"
   integrity sha512-VlTurkvs4v7EVFWESBZGOPghFEokQhU5au5CP9WqA8B2/PcQRDsaaQlQCA6VATuEnW+vtSiSBvTiOc4004f8xg==
 
+"@google/markerclustererplus@^2.1.11":
+  version "2.1.11"
+  resolved "https://registry.yarnpkg.com/@google/markerclustererplus/-/markerclustererplus-2.1.11.tgz#cc8598d7f17ada8eab13a2f25094d020dbd0bf36"
+  integrity sha512-B1w3TKgu1MRTJq7VXUv3JUxAd69qHROIg2tODPjQA7tjKvu4K7pCdPduE6Xu9Mfb5syhOH77BWGHqFYy7MgjCw==
+
 "@grpc/proto-loader@^0.5.0":
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/@grpc/proto-loader/-/proto-loader-0.5.2.tgz#c84f83be962f518bc303ca2d5e6ef2239439786c"
@@ -993,10 +998,6 @@
   dependencies:
     lodash.camelcase "^4.3.0"
     protobufjs "^6.8.6"
-"@google/markerclustererplus@^2.1.11":
-  version "2.1.11"
-  resolved "https://registry.yarnpkg.com/@google/markerclustererplus/-/markerclustererplus-2.1.11.tgz#cc8598d7f17ada8eab13a2f25094d020dbd0bf36"
-  integrity sha512-B1w3TKgu1MRTJq7VXUv3JUxAd69qHROIg2tODPjQA7tjKvu4K7pCdPduE6Xu9Mfb5syhOH77BWGHqFYy7MgjCw==
 
 "@hapi/address@2.x.x":
   version "2.0.0"
@@ -1583,6 +1584,11 @@
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-1.0.1.tgz#0a851d3bd96498fa25c33ab7278ed3bd65f06c3e"
   integrity sha512-l42BggppR6zLmpfU6fq9HEa2oGPEI8yrSPL3GITjfRInppYFahObbIQOQK3UGxEnyQpltZLaPe75046NOZQikw==
+
+"@types/throttle-debounce@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@types/throttle-debounce/-/throttle-debounce-2.1.0.tgz#1c3df624bfc4b62f992d3012b84c56d41eab3776"
+  integrity sha512-5eQEtSCoESnh2FsiLTxE121IiE60hnMqcb435fShf4bpLRjEu1Eoekht23y6zXS9Ts3l+Szu3TARnTsA0GkOkQ==
 
 "@types/yargs@^12.0.2", "@types/yargs@^12.0.9":
   version "12.0.12"
@@ -10248,6 +10254,11 @@ throat@^4.0.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/throat/-/throat-4.1.0.tgz#89037cbc92c56ab18926e6ba4cbb200e15672a6a"
   integrity sha1-iQN8vJLFarGJJua6TLsgDhVnKmo=
+
+throttle-debounce@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/throttle-debounce/-/throttle-debounce-2.1.0.tgz#257e648f0a56bd9e54fe0f132c4ab8611df4e1d5"
+  integrity sha512-AOvyNahXQuU7NN+VVvOOX+uW6FPaWdAOdRP5HfwYxAfCzXTFKRMoIMk+n+po318+ktcChx+F1Dd91G3YHeMKyg==
 
 through2@^2.0.0:
   version "2.0.5"

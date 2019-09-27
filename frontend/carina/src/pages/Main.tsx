@@ -2,11 +2,12 @@ import React, { createRef } from "react";
 import Axios from "axios";
 import GooglePlacesAutocomplete, {
   geocodeByPlaceId,
-  getLatLng
+  getLatLng,
   // @ts-ignore
 } from "react-google-places-autocomplete";
 // @ts-ignore
 import Geocode from "react-geocode";
+import { debounce } from "throttle-debounce";
 import firebase, { auth, provider } from "../firebase";
 
 import CarparkMap from "../components/CarparkMap";
@@ -43,7 +44,7 @@ class MainPage extends React.Component<any, IMainPageState> {
     this.state = {
       location: {
         lat: 1.2935861,
-        lng: 103.7844513
+        lng: 103.7844513,
       } as Point,
       zoom: 16,
       radius: "300",
@@ -54,7 +55,7 @@ class MainPage extends React.Component<any, IMainPageState> {
       favouritedCarparks: [],
       favouritedCarparksIds: {},
       carparksToShow: [],
-      refs: {}
+      refs: {},
     };
 
     this.handleRadiusChange = this.handleRadiusChange.bind(this);
@@ -67,6 +68,11 @@ class MainPage extends React.Component<any, IMainPageState> {
     this.handleClear = this.handleClear.bind(this);
     this.scrollToCarparkInfo = this.scrollToCarparkInfo.bind(this);
     this.resetSelectedCarpark = this.resetSelectedCarpark.bind(this);
+
+    this.updateCarparksWithinRadius = debounce(
+      500,
+      this.updateCarparksWithinRadius
+    );
   }
 
   componentDidMount() {
@@ -92,11 +98,11 @@ class MainPage extends React.Component<any, IMainPageState> {
               latitude: parseFloat(entry.latitude),
               longitude: parseFloat(entry.longitude),
               availableLots: entry.lots.C,
-              distFromSrc: -1
+              distFromSrc: -1,
             } as Carpark;
           });
           this.setState({
-            carparks
+            carparks,
           });
 
           localStorage.setItem(
@@ -109,7 +115,7 @@ class MainPage extends React.Component<any, IMainPageState> {
           // If is offline, retrieve from local storage
           if (carparks) {
             this.setState({
-              carparks: JSON.parse(carparks)
+              carparks: JSON.parse(carparks),
             });
             console.log("Retrieved from local storage: everything");
           }
@@ -144,7 +150,7 @@ class MainPage extends React.Component<any, IMainPageState> {
           } else {
             this.setState({
               favouritedCarparks: [],
-              favouritedCarparksIds: {}
+              favouritedCarparksIds: {},
             });
           }
         });
@@ -165,7 +171,7 @@ class MainPage extends React.Component<any, IMainPageState> {
             latitude: parseFloat(entry.latitude),
             longitude: parseFloat(entry.longitude),
             availableLots: entry.lots.C,
-            distFromSrc: parseInt(entry.distFromSrc)
+            distFromSrc: parseInt(entry.distFromSrc),
           } as Carpark;
         });
         console.log("Retrieved from backend: within radius");
@@ -182,7 +188,7 @@ class MainPage extends React.Component<any, IMainPageState> {
               latitude: carpark.latitude,
               longitude: carpark.longitude,
               availableLots: carpark.availableLots,
-              distFromSrc: computeDistance(carpark, this.state.location)
+              distFromSrc: computeDistance(carpark, this.state.location),
             } as Carpark;
           });
         console.log("Retrieved from local storage: within radius");
@@ -196,16 +202,18 @@ class MainPage extends React.Component<any, IMainPageState> {
         acc[carpark.carparkId] = createRef();
         return acc;
       }, {});
-      this.setState({ location, radius, address, carparksToShow, refs });
+      this.setState({ location, address, carparksToShow, refs });
     });
   }
 
   handleRadiusChange(event: React.ChangeEvent<HTMLInputElement>) {
     const value: string = event.target.value;
     if (value) {
+      const radiusToSearch = parseInt(value) > 3000 ? "3000" : value;
+      this.setState({ radius: radiusToSearch });
       this.updateCarparksWithinRadius(
         this.state.location,
-        value,
+        radiusToSearch,
         this.state.address
       );
     } else {
@@ -215,7 +223,7 @@ class MainPage extends React.Component<any, IMainPageState> {
 
   handleBlur() {
     this.setState({
-      radius: this.state.radius === "" ? "0" : this.state.radius
+      radius: this.state.radius === "" ? "0" : this.state.radius,
     });
   }
 
@@ -234,7 +242,7 @@ class MainPage extends React.Component<any, IMainPageState> {
 
   handleClear() {
     this.setState({
-      address: " "
+      address: " ",
     });
   }
 
@@ -244,7 +252,7 @@ class MainPage extends React.Component<any, IMainPageState> {
         const { latitude, longitude } = position.coords;
         const location = {
           lat: latitude,
-          lng: longitude
+          lng: longitude,
         } as Point;
         Geocode.fromLatLng(latitude, longitude).then((response: any) => {
           const address = response.results[0].formatted_address;
@@ -340,14 +348,14 @@ class MainPage extends React.Component<any, IMainPageState> {
     if (this.state.refs[id]) {
       this.state.refs[id].current.scrollIntoView({
         behavior: "smooth",
-        block: "start"
+        block: "start",
       });
     }
   }
 
   resetSelectedCarpark() {
     this.setState({
-      selectedId: undefined
+      selectedId: undefined,
     });
   }
 
@@ -363,7 +371,7 @@ class MainPage extends React.Component<any, IMainPageState> {
                 <GooglePlacesAutocomplete
                   inputClassName="form-control"
                   autocompletionRequest={{
-                    componentRestrictions: { country: "sg" }
+                    componentRestrictions: { country: "sg" },
                   }}
                   initialValue={this.state.address}
                   onSelect={this.handleSelectLocation}
