@@ -37,7 +37,6 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
       this
     );
     this.toggleFavourite = this.toggleFavourite.bind(this);
-    this.logout = this.logout.bind(this);
     this.handleSearchChange = this.handleSearchChange.bind(this);
     this.handleClear = this.handleClear.bind(this);
   }
@@ -76,13 +75,6 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
     }
   }
 
-  logout() {
-    auth.signOut().then(() => {
-      this.setState({ user: null, showFavourites: false });
-      console.log("signed out");
-    });
-  }
-
   requestSearch(event: any) {
     event.preventDefault();
     const input = this.state.currentSearch.trim().toLowerCase();
@@ -117,26 +109,10 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
     });
   }
 
-  renderLoginButton() {
-    if (this.state.user) {
-      return (
-        <div className="header-login">
-          <button
-            type="button"
-            className="btn btn-outline-secondary"
-            onClick={this.logout}
-          >
-            Log Out
-          </button>
-        </div>
-      );
-    }
-  }
-
   render() {
     return (
-      <div className="row no-gutters">
-        <div className="col-lg-7 left-col">
+      <div className="row no-gutters offline-mode">
+        <div className="col-lg-12 left-col">
           {/* Start of form */}
           <form onSubmit={this.requestSearch}>
             <div className="form-group">
@@ -162,7 +138,6 @@ class OfflinePage extends React.Component<any, IOfflinePageState> {
                     </button>
                   </div>
                 </div>
-                {this.renderLoginButton()}
               </div>
             </div>
           </form>

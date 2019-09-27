@@ -27,6 +27,12 @@
   }
 }
 
+.offline-mode .left-col {
+  @media screen and (max-width: 992px) {
+    height: 100vh;
+  }
+}
+
 .carparks-header {
   display: flex;
   align-items: center;
@@ -79,8 +85,6 @@
 }
 
 .search-bar-offline {
-  width: 75% !important;
-
   .clear-input {
     position: absolute;
     right: 3em;
