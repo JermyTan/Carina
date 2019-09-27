@@ -64,7 +64,6 @@ class CarparkList extends React.Component<ICarparkListProps, any> {
         <OfflineCarparkInfo
           key={carpark.carparkId}
           carpark={carpark}
-          showFavourite={this.props.user != null}
           isFavourited={carpark.carparkId in this.props.favouritedCarparkIds}
         />
       ));

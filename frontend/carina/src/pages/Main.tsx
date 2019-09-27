@@ -17,7 +17,6 @@ import {
 } from "../utils/Constants";
 import { Carpark, Point } from "../utils/Types";
 import {
-  withinRadius,
   mapEntriesToCarparks,
   updateCarparksDistFromSrc
 } from "../utils/MainUtils";
@@ -159,29 +158,27 @@ class MainPage extends React.Component<any, IMainPageState> {
       if (response.status == 200) {
         nearbyCarparks = mapEntriesToCarparks(response.data, true);
         console.log("Backend: within radius", nearbyCarparks);
-      } else {
-        nearbyCarparks = this.state.carparks.filter((carpark: Carpark) => {
-          withinRadius(carpark, location, parseInt(radius));
+        //sorts by distance (nearest to furthers)
+        nearbyCarparks.sort(
+          (carpark1: Carpark, carpark2: Carpark) =>
+            carpark1.distFromSrc - carpark2.distFromSrc
+        );
+        const refs: any = nearbyCarparks.reduce(
+          (acc: any, carpark: Carpark) => {
+            acc[carpark.carparkId] = createRef();
+            return acc;
+          },
+          {}
+        );
+        this.setState({
+          location,
+          selectedLatLng: location,
+          radius,
+          address,
+          nearbyCarparks,
+          refs
         });
-        console.log("Local storage: within radius", nearbyCarparks);
       }
-      //sorts by distance (nearest to furthers)
-      nearbyCarparks.sort(
-        (carpark1: Carpark, carpark2: Carpark) =>
-          carpark1.distFromSrc - carpark2.distFromSrc
-      );
-      const refs: any = nearbyCarparks.reduce((acc: any, carpark: Carpark) => {
-        acc[carpark.carparkId] = createRef();
-        return acc;
-      }, {});
-      this.setState({
-        location,
-        selectedLatLng: location,
-        radius,
-        address,
-        nearbyCarparks,
-        refs
-      });
     });
   }
 
@@ -189,7 +186,6 @@ class MainPage extends React.Component<any, IMainPageState> {
     const value: string = event.target.value;
     if (value) {
       const radiusToSearch = parseInt(value) > 3000 ? "3000" : value;
-      this.setState({ radius: radiusToSearch });
       this.updateCarparksWithinRadius(
         this.state.location,
         radiusToSearch,

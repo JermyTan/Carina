@@ -11,12 +11,8 @@ class App extends React.Component<any, IAppState> {
     super(props);
 
     this.state = {
-      isOnline: false
+      isOnline: navigator.onLine
     };
-  }
-
-  componentDidMount() {
-    this.setState({ isOnline: navigator.onLine });
   }
 
   render() {
