@@ -1,21 +1,3 @@
-.header {
-  margin-bottom: 0.5em;
-  font-size: 0.75em;
-
-  .header-login {
-    display: flex;
-    align-items: center;
-
-    .displayName {
-      margin-left: 1em;
-    }
-  }
-
-  .button {
-    border-radius: 0.25em;
-  }
-}
-
 .google-places-autocomplete {
   flex: 1 1 auto;
   width: 1%;
@@ -43,13 +25,6 @@
     height: 60vh;
     padding: 0.5em 1em !important;
   }
-}
-
-.carparks {
-  flex: 1;
-  overflow-y: scroll;
-  margin-left: -8px;
-  margin-right: -8px;
 }
 
 .carparks-header {
@@ -99,6 +74,27 @@
   .google-places-autocomplete {
     input {
       padding-right: 2em;
+    }
+  }
+}
+
+.search-bar-offline {
+  width: 75% !important;
+
+  .clear-input {
+    position: absolute;
+    right: 3em;
+    background: none;
+    top: 0;
+    bottom: 0;
+    color: #ccc;
+    border: none;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+    &:hover {
+      color: rgb(126, 126, 126);
     }
   }
 }

@@ -130,7 +130,7 @@ class CarparkMap extends Component<ICarparkMapProps, ICarparkMapState> {
 }
 
 const InfoDetails = ({ selectedCarpark }: { selectedCarpark: Carpark }) => {
-  console.log(selectedCarpark);
+  console.log("Selected carpark", selectedCarpark);
 
   const classifyLotCount = (numLots: number) => {
     if (numLots >= 100) return "high";

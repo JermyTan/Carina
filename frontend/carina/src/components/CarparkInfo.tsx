@@ -7,10 +7,12 @@ import ExpandLessSvg from "./svgrs/ExpandLessSvg";
 import DirectionsSvg from "./svgrs/DirectionsSvg";
 import HistogramChart, { HistogramData } from "./HistogramChart";
 import { Carpark } from "../utils/Types";
+import Axios from "axios";
 
 interface ICarparkInfoState {
   isExpanded: boolean;
   isFavourited: boolean;
+  histogramData: any;
 }
 
 interface ICarparkInfoProps {
@@ -19,7 +21,7 @@ interface ICarparkInfoProps {
   isFavourited: boolean;
   selectedOnMap: boolean;
   innerRef: any;
-  handleClicked: any;
+  handleClicked: (carpark: Carpark) => void;
 }
 
 const GOOGLE_MAP_REDIR_URL_PREFIX =
@@ -34,14 +36,48 @@ class CarparkInfo extends React.Component<
     this.state = {
       isExpanded: false,
       isFavourited: this.props.isFavourited,
+      histogramData: HistogramData
     };
 
     this.handleExpand = this.handleExpand.bind(this);
     this.handleFavourite = this.handleFavourite.bind(this);
+    this.updateHistogramData = this.updateHistogramData.bind(this);
+    this.toggleExpand = this.toggleExpand.bind(this);
   }
 
-  handleExpand() {
-    this.setState({ isExpanded: !this.state.isExpanded });
+  updateHistogramData() {
+    const currentDay = new Date().getDay();
+    Axios.get(
+      `${process.env.REACT_APP_BACKEND_API}public/carpark-availability/statistics?carpark_id=${this.props.carpark.carparkId}&days=${currentDay}&lotTypes=C`
+    ).then(response => {
+      if (response.status == 200) {
+        const data: any = response.data[0];
+        const histogram: any = [];
+        for (let i = 0; i < data.length; i++) {
+          let temp = data[i];
+          let hourlyData = {
+            hour: parseInt(temp.hour),
+            timeLabel: temp.timeLabel,
+            lots: parseInt(temp.availableLots)
+          };
+          histogram.push(hourlyData);
+        }
+        console.log(histogram);
+        this.setState({ histogramData: histogram });
+      }
+    });
+  }
+
+  toggleExpand() {
+    this.handleExpand().then(() =>
+      this.setState({ isExpanded: !this.state.isExpanded })
+    );
+  }
+
+  async handleExpand() {
+    if (!this.state.isExpanded) {
+      this.updateHistogramData();
+    }
   }
 
   handleFavourite() {
@@ -103,7 +139,7 @@ class CarparkInfo extends React.Component<
       GOOGLE_MAP_REDIR_URL_PREFIX,
       this.props.carpark.latitude,
       "+",
-      this.props.carpark.longitude,
+      this.props.carpark.longitude
     ].join("");
     return (
       <div
@@ -141,19 +177,11 @@ class CarparkInfo extends React.Component<
               <div className="card-subtitle text-muted">lots left</div>
             </div>
           </div>
-          <div className="card-body d-flex no-gutters justify-content-between elab-wrapper">
-            <div className="d-flex flex-column">
-              <span>Price</span>
-              {/* TODO: If no time range given, we default to 1 hour, if there is we calculate total price */}
-              <span>$13.75</span>
-              {/* TODO: Show how we derived at price */}
-              <span>Price breakdown</span>
-            </div>
-
-            <div className="d-flex flex-column distance-info">
-              <span>Dist</span>
+          <div className="card-body d-flex no-gutters justify-content-end elab-wrapper">
+            <div className="d-flex distance-info">
               <span>{this.props.carpark.distFromSrc} m</span>
               <a
+                className="redirection-icon"
                 href={redirectionUrl}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -164,10 +192,10 @@ class CarparkInfo extends React.Component<
           </div>
           {this.state.isExpanded && (
             <div className="card-body lot-histogram">
-              <HistogramChart data={HistogramData} />
+              <HistogramChart data={this.state.histogramData} />
             </div>
           )}
-          <div className="expansion-wrapper" onClick={this.handleExpand}>
+          <div className="expansion-wrapper" onClick={this.toggleExpand}>
             {this.state.isExpanded ? <ExpandLessSvg /> : <ExpandMoreSvg />}
           </div>
         </div>
