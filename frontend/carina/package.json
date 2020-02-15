@@ -24,7 +24,7 @@
     "react-with-firebase-auth": "^1.0.4",
     "throttle-debounce": "^2.1.0",
     "typescript": "3.6.2",
-    "yarn": "^1.17.3"
+    "yarn": "^1.22.0"
   },
   "scripts": {
     "start": "react-scripts start",
