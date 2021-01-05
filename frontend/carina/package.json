@@ -12,7 +12,7 @@
     "@types/react-dom": "16.9.0",
     "@types/throttle-debounce": "^2.1.0",
     "add": "^2.0.6",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "firebase": "^6.6.2",
     "google-maps-react": "https://github.com/fullstackreact/google-maps-react.git#master",
     "node-sass": "^4.12.0",
